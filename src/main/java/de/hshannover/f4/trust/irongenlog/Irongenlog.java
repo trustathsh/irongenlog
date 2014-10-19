@@ -43,13 +43,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.Timer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
+import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
+import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
 import de.hshannover.f4.trust.irongenlog.WebSocketConnector.WebSocketConnector;
+import de.hshannover.f4.trust.irongenlog.publisher.StrategyChainBuilder;
+import de.hshannover.f4.trust.irongenlog.utilities.IfMap;
+import de.hshannover.f4.trust.irongenlog.utilities.SsrcKeepaliveThread;
 
 /**
  * This class starts the application It creates the threads for publishing,
@@ -76,14 +83,24 @@ public class Irongenlog {
 		setupLogging();
 		
 		try {
-			Configuration.init();		
+			Configuration.init();	
+			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap());
+			
+			IfMap.initSsrc(Configuration.ifmapAuthMethod(), Configuration.ifmapUrlBasic(), Configuration.ifmapUrlCert(),
+					Configuration.ifmapBasicUser(), Configuration.ifmapBasicPassword(), Configuration.keyStorePath(),
+					Configuration.keyStorePassword());
+			
+			IfMap.getSsrc().newSession();
+			IfMap.getSsrc().purgePublisher();
+
+			Timer timerA = new Timer();
+			timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive() * 1000 * 60);
+			
 			try {
 				WebSocketConnector webSockCon = new WebSocketConnector(Configuration.websocketServerUrl());						
 				try {
 					webSockCon.setActive();
-					
-					
-					
+									
 					
 				} catch (IOException e) {
 					LOGGER.severe("Error setting up the websocket connection... System can not start!");
@@ -98,9 +115,14 @@ public class Irongenlog {
 			LOGGER.severe("Error setting up the configuration... System can not start!");
 		} catch (IOException e1) {
 			LOGGER.severe("Error setting up the configuration... System can not start!");
+		} catch (InitializationException e1) {
+			LOGGER.severe("Error setting up the ssrc channel... System can not start!");
+		} catch (IfmapErrorResult e1) {
+			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
+		} catch (IfmapException e1) {
+			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
 		}
 		
-
 	}
 
 

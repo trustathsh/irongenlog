@@ -79,6 +79,8 @@ public final class Configuration {
 
 	private static final String KEYSTORE_PATH = "keystore.path";
 	private static final String KEYSTORE_PASSWORD = "keystore.password";
+	
+	private static final String IFMAP_KEEPALIVE = "ifmap.client.keepalive";
 
 	private static final String WEBSOCKET_SERVER_URL = "websocket.server.url";
 
@@ -253,6 +255,15 @@ public final class Configuration {
 	 */
 	public static String irongenlogRequestStrategiesClassnamePropertiesFilename() {
 		return get(REQUEST_STRATEGIES_CLASSNAMES_FILENAME);
+	}
+	
+	/**
+	 * Getter for the ifmapKeepalive property.
+	 * 
+	 * @return property integer
+	 */
+	public static int ifmapKeepalive() {
+		return Integer.parseInt(get(IFMAP_KEEPALIVE));
 	}
 
 }

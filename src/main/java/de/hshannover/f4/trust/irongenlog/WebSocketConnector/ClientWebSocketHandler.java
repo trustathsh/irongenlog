@@ -48,6 +48,10 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
+import de.hshannover.f4.trust.irongenlog.publisher.PublishLogDataStrategy;
+import de.hshannover.f4.trust.irongenlog.publisher.StrategyChainBuilder;
+import de.hshannover.f4.trust.irongenlog.utilities.IfMap;
+
 /**
  * Web Client Socket
  */
@@ -113,5 +117,13 @@ public class ClientWebSocketHandler {
 	@OnWebSocketMessage
 	public void onMessage(String msg) {
 		LOGGER.info("Got msg: "+ msg);
+		
+		PublishLogDataStrategy strategyObj;
+
+		for (int i = 0; i < StrategyChainBuilder.getSize(); i++) {
+			strategyObj = StrategyChainBuilder.getElementAt(i);
+			strategyObj.publishLogData(IfMap.getSsrc(), msg);
+		}
 	}
+	
 }
