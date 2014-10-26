@@ -101,7 +101,7 @@ server config:
 
 		grok {
 			add_tag => "grepped"
-			add_tag => "dnsmasq-dhcp"
+			add_field => [ "strategy", "dnsmasq-dhcp" ]
 			match => [
 					"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{MAC:MAC}",
 					"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{IP:IP} %{MAC:MAC}",
