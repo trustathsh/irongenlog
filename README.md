@@ -70,59 +70,59 @@ For example here are the config files to log dnsmask dhcp events:
 
 server config:
 
-input {
-	redis {
-		host => "192.168.0.104"
-		type => "redis"
-		data_type => "list"
-		key => "logstash"
+	input {
+		redis {
+			host => "192.168.0.104"
+			type => "redis"
+			data_type => "list"
+			key => "logstash"
+		}
 	}
-}
 
-output {
-	websocket {
-		codec => "json"
-		port => 3232
+	output {
+		websocket {
+			codec => "json"
+			port => 3232
+		}
 	}
-}
 
-shipper config:
+	shipper config:
 
-input {
-	file {
-		type => "syslog"
-		path => ["/var/log/syslog"]
-		exclude => ["*.gz", "shipper.log"]
-		sincedb_path => "/path/logstash/.sincedb"
+	input {
+		file {
+			type => "syslog"
+			path => ["/var/log/syslog"]
+			exclude => ["*.gz", "shipper.log"]
+			sincedb_path => "/path/logstash/.sincedb"
+		}
 	}
-}
 
-filter {
+	filter {
 
-	grok {
-		add_tag => "grepped"
-		add_tag => "dnsmasq-dhcp"
-		match => [
-				"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{MAC:MAC}",
-				"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{IP:IP} %{MAC:MAC}",
-				"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{IP:IP} %{MAC:MAC} %{HOST:CLIENTNAME}"
-			 ]
-  	}
+		grok {
+			add_tag => "grepped"
+			add_tag => "dnsmasq-dhcp"
+			match => [
+					"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{MAC:MAC}",
+					"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{IP:IP} %{MAC:MAC}",
+					"message", "%{SYSLOGTIMESTAMP:DATETIME} %{HOST:DHCPSERVERNAME} dnsmasq-dhcp\[%{POSINT:pid}\]: %{WORD:METHOD}\(%{WORD:INTERFACE}\) %{IP:IP} %{MAC:MAC} %{HOST:CLIENTNAME}"
+				 ]
+	  	}
 
-	if ! ("grepped" in [tags]) {
-    		drop{}
+		if ! ("grepped" in [tags]) {
+	    		drop{}
+		}
+	  
 	}
-  
-}
 
-output {
+	output {
 
-	redis {
-		host => "192.168.0.104"
-		data_type => "list"
-		key => "logstash"
+		redis {
+			host => "192.168.0.104"
+			data_type => "list"
+			key => "logstash"
+		}
 	}
-}
 
 
 Building

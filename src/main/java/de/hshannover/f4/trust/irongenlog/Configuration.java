@@ -85,7 +85,7 @@ public final class Configuration {
 	private static final String WEBSOCKET_SERVER_URL = "websocket.server.url";
 
 	// publisher
-	private static final String REQUEST_STRATEGIES_CLASSNAMES_FILENAME = "irongenlog.publisher.requeststrategies";
+	private static final String REQUEST_STRATEGIES_CLASSNAMES_FILENAME = "irongenlog.publisher.strategies";
 
 	// end configuration parameter ---------------------------------------------
 

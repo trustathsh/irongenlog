@@ -36,7 +36,7 @@
  * limitations under the License.
  * #L%
  */
-package de.hshannover.f4.trust.irongenlog.WebSocketConnector;
+package de.hshannover.f4.trust.irongenlog.websocketconnector;
 
 import java.io.IOException;
 import java.util.TimerTask;

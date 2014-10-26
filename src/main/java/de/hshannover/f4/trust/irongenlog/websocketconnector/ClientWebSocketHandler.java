@@ -37,11 +37,16 @@
  * #L%
  */
 
-package de.hshannover.f4.trust.irongenlog.WebSocketConnector;
+package de.hshannover.f4.trust.irongenlog.websocketconnector;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.logging.Logger;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -61,7 +66,8 @@ public class ClientWebSocketHandler {
 	private static final Logger LOGGER = Logger.getLogger(ClientWebSocketHandler.class.getName());
 	
 	private Session mSession;
-	private Timer websocketKeepAliveTimer;
+	private Timer mWebsocketKeepAliveTimer;
+	private ObjectMapper mMapper = new ObjectMapper();
 
 	/**
 	 * This method returns the current WebsocketSession
@@ -85,7 +91,7 @@ public class ClientWebSocketHandler {
 	@OnWebSocketClose
 	public void onClose(int statusCode, String reason) {
 		LOGGER.info("Connection closed: "+statusCode+" - "+reason);
-		websocketKeepAliveTimer.cancel();
+		mWebsocketKeepAliveTimer.cancel();
 		this.mSession = null;
 	}
 
@@ -118,12 +124,24 @@ public class ClientWebSocketHandler {
 	public void onMessage(String msg) {
 		LOGGER.info("Got msg: "+ msg);
 		
-		PublishLogDataStrategy strategyObj;
+		try {
+			JsonNode rootNode = mMapper.readValue(msg, JsonNode.class);
+			
+			PublishLogDataStrategy strategyObj;
 
-		for (int i = 0; i < StrategyChainBuilder.getSize(); i++) {
-			strategyObj = StrategyChainBuilder.getElementAt(i);
-			strategyObj.publishLogData(IfMap.getSsrc(), msg);
-		}
+			for (int i = 0; i < StrategyChainBuilder.getSize(); i++) {
+				strategyObj = StrategyChainBuilder.getElementAt(i);
+				strategyObj.publishLogData(IfMap.getSsrc(), rootNode);
+			}
+			
+		} catch (JsonParseException e) {
+			LOGGER.severe("Error parsing json string: "+ e);
+		} catch (JsonMappingException e) {
+			LOGGER.severe("Error mapping json string: "+ e);
+		} catch (IOException e) {
+			LOGGER.severe("Error getting json string: "+ e);
+		}	
+
 	}
 	
 }

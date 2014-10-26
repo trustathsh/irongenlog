@@ -18,7 +18,7 @@
  * Email: trust@f4-i.fh-hannover.de
  * Website: http://trust.f4.hs-hannover.de
  * 
- * This file is part of ironflow, version 0.0.1, implemented by the Trust@HsH
+ * This file is part of irongenlog, version 0.0.1, implemented by the Trust@HsH
  * research group at the Hochschule Hannover.
  * %%
  * Copyright (C) 2013 - 2014 Trust@HsH
@@ -38,14 +38,14 @@
  */
 package de.hshannover.f4.trust.irongenlog.publisher;
 
+import org.codehaus.jackson.JsonNode;
 import de.hshannover.f4.trust.ifmapj.IfmapJ;
 import de.hshannover.f4.trust.ifmapj.channel.SSRC;
 import de.hshannover.f4.trust.ifmapj.metadata.StandardIfmapMetadataFactory;
 
-
 /**
- * This class is an abstract represent of the Implementation of the
- * different logdata publish strategies
+ * This class is an abstract represent of the Implementation of the different
+ * logdata publish strategies
  * 
  * 
  * @author Marius Rohde
@@ -54,23 +54,23 @@ import de.hshannover.f4.trust.ifmapj.metadata.StandardIfmapMetadataFactory;
 
 public abstract class PublishLogDataStrategy {
 
+		
 	/**
-	 * Abstract methode to publish the logdata. Has to be
-	 * implemented by the different subclass strategies
+	 * Abstract methode to publish the logdata. Has to be implemented by the
+	 * different subclass strategies
 	 * 
 	 * @param ssrc
 	 *            : the ssrc to publish data
+	 * @param rootNode
+	 *            : the json message root node
 	 */
 
-	public abstract void publishLogData(SSRC ssrc, String jsonMsg);
-
-
+	public abstract void publishLogData(SSRC ssrc, JsonNode rootNode);
 
 	/**
 	 * Helper Methode to get if Map MetaData factory
 	 * 
-	 * @return mf
-	 * 			the Metadatafactory
+	 * @return mf the Metadatafactory
 	 */
 
 	public StandardIfmapMetadataFactory getMetadataFactory() {
