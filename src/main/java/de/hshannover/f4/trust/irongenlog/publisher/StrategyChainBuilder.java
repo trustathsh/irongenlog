@@ -45,8 +45,8 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 /**
- * This class initialize the strategy chain to get the strategies for publishing log data.
- * The config file defines which strategies will be load by reflection
+ * This class initialize the strategy chain to get the strategies for publishing
+ * log data. The config file defines which strategies will be load by reflection
  * Objects
  * 
  * 

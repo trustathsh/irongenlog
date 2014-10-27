@@ -77,6 +77,9 @@ public class WebSocketConnector {
 	 * @param destUri
 	 *            The uri to the Websocket server
 	 * 
+	 * @throws URISyntaxException
+	 *             if destUri is not a URI
+	 * 
 	 */
 
 	public WebSocketConnector(String destUri) throws URISyntaxException {
@@ -85,8 +88,12 @@ public class WebSocketConnector {
 
 	/**
 	 * Method to activate the websocket to hear for new events
+	 * 
+	 * @throws Exception
+	 *             if there is no connection to webserver
+	 * 
 	 */
-	public void setActive() throws IOException, Exception {
+	public void setActive() throws Exception {
 
 		mClient = new WebSocketClient();
 		ClientWebSocketHandler socket = new ClientWebSocketHandler();

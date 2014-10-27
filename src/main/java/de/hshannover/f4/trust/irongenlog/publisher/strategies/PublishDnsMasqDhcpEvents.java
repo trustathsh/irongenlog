@@ -141,7 +141,7 @@ public class PublishDnsMasqDhcpEvents extends PublishLogDataStrategy {
 		try {
 			// accessrequest to mac
 			MacAddress macHost = Identifiers.createMac(rootNode.path("MAC").getTextValue());
-			AccessRequest ar = Identifiers.createAr("DHCPREQUEST_"+rootNode.path("IP").getTextValue());
+			AccessRequest ar = Identifiers.createAr("DHCPREQUEST_" + rootNode.path("IP").getTextValue());
 			Document docArMac = getMetadataFactory().createArMac();
 
 			PublishUpdate publishArMac = Requests.createPublishUpdate(macHost, ar, docArMac, MetadataLifetime.session);
@@ -183,7 +183,7 @@ public class PublishDnsMasqDhcpEvents extends PublishLogDataStrategy {
 
 		try {
 
-			AccessRequest ar = Identifiers.createAr("DHCPREQUEST_"+rootNode.path("IP").getTextValue());
+			AccessRequest ar = Identifiers.createAr("DHCPREQUEST_" + rootNode.path("IP").getTextValue());
 			Device dhcpserver = Identifiers.createDev(rootNode.path("DHCPSERVERNAME").getTextValue());
 
 			Document docAuthAr = getMetadataFactory().createAuthBy();

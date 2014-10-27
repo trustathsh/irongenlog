@@ -86,7 +86,7 @@ server config:
 		}
 	}
 
-	shipper config:
+shipper config:
 
 	input {
 		file {

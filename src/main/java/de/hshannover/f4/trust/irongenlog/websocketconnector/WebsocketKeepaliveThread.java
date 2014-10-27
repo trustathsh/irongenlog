@@ -43,7 +43,7 @@ import java.util.TimerTask;
 import java.util.logging.Logger;
 
 /**
- * This class pings the Websocket server to keep the connection alive 
+ * This class pings the Websocket server to keep the connection alive
  * 
  * @author Marius Rohde
  * 
@@ -51,13 +51,15 @@ import java.util.logging.Logger;
 public class WebsocketKeepaliveThread extends TimerTask {
 
 	private static final Logger LOGGER = Logger.getLogger(WebsocketKeepaliveThread.class.getName());
-	
+
 	private ClientWebSocketHandler mSocket;
 
 	/**
-	 * Constructor for the Websocketkeepalive Thread 
+	 * Constructor for the Websocketkeepalive Thread
 	 * 
-	 * @param socket The ClientWebSocketHandler to get the webSocketsession to ping the Server
+	 * @param socket
+	 *            The ClientWebSocketHandler to get the webSocketsession to ping
+	 *            the Server
 	 * 
 	 */
 	public WebsocketKeepaliveThread(ClientWebSocketHandler socket) {
@@ -66,17 +68,17 @@ public class WebsocketKeepaliveThread extends TimerTask {
 
 	/**
 	 * Thread method run to ping the websocketserver
- 	 * 
+	 * 
 	 */
 	@Override
 	public void run() {
-		try {			
-			
+		try {
+
 			if (mSocket.getWebSocketSession().isOpen()) {
 				LOGGER.info("Keepalive sending ping");
 				mSocket.getWebSocketSession().getRemote().sendPing(null);
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

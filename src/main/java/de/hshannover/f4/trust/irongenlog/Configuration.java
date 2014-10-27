@@ -79,7 +79,7 @@ public final class Configuration {
 
 	private static final String KEYSTORE_PATH = "keystore.path";
 	private static final String KEYSTORE_PASSWORD = "keystore.password";
-	
+
 	private static final String IFMAP_KEEPALIVE = "ifmap.client.keepalive";
 
 	private static final String WEBSOCKET_SERVER_URL = "websocket.server.url";
@@ -105,7 +105,7 @@ public final class Configuration {
 	 * @throws FileNotFoundException
 	 *             To signalise a failure while opening to calling classes
 	 */
-	public static void init() throws IOException, FileNotFoundException  {
+	public static void init() throws IOException, FileNotFoundException {
 		LOGGER.info("reading " + CONFIG_FILE + " ...");
 
 		mProperties = new Properties();
@@ -130,7 +130,8 @@ public final class Configuration {
 	 * @throws IOException
 	 *             To signalise a failure while reading to calling classes
 	 */
-	private static void loadPropertiesfromFile(InputStream in, Properties props) throws IOException, FileNotFoundException {
+	private static void loadPropertiesfromFile(InputStream in, Properties props) throws IOException,
+			FileNotFoundException {
 
 		try {
 			props.load(in);
@@ -156,8 +157,8 @@ public final class Configuration {
 	 * 
 	 * @param key
 	 * @return the value assigned to key or null if it is none
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
+	 * @throws IOException
+	 * @throws FileNotFoundException
 	 */
 	private static String get(String key) {
 		return mProperties.getProperty(key);
@@ -167,8 +168,8 @@ public final class Configuration {
 	 * Getter for the request Strategies classname map.
 	 * 
 	 * @return the set of classnames for request strategies
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
+	 * @throws IOException
+	 * @throws FileNotFoundException
 	 */
 	public static Set<Entry<Object, Object>> getRequestStrategiesClassnameMap() {
 		return mClassnamesForRequestStrategy.entrySet();
@@ -246,8 +247,6 @@ public final class Configuration {
 		return get(WEBSOCKET_SERVER_URL);
 	}
 
-
-
 	/**
 	 * Getter for the request strategies ClassnamePropertiesFilename property.
 	 * 
@@ -256,7 +255,7 @@ public final class Configuration {
 	public static String irongenlogRequestStrategiesClassnamePropertiesFilename() {
 		return get(REQUEST_STRATEGIES_CLASSNAMES_FILENAME);
 	}
-	
+
 	/**
 	 * Getter for the ifmapKeepalive property.
 	 * 

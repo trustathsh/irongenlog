@@ -54,7 +54,6 @@ import de.hshannover.f4.trust.ifmapj.metadata.StandardIfmapMetadataFactory;
 
 public abstract class PublishLogDataStrategy {
 
-		
 	/**
 	 * Abstract methode to publish the logdata. Has to be implemented by the
 	 * different subclass strategies

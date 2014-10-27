@@ -66,51 +66,57 @@ import de.hshannover.f4.trust.irongenlog.websocketconnector.WebSocketConnector;
  * 
  */
 
-public class Irongenlog {
+public final class Irongenlog {
 
 	private static final Logger LOGGER = Logger.getLogger(Irongenlog.class.getName());
 
 	private static final String LOGGING_CONFIG_FILE = "/logging.properties";
 
 	/**
-	 * The Main method initialize the Configuration, logging and the WebSocket. After
-	 * that it calls the initialize method of the SSRC
+	 * Death constructor for code convention -> final class because utility
+	 * class
+	 */
+	private Irongenlog() {
+	}
+
+	/**
+	 * The Main method initialize the Configuration, logging and the WebSocket.
+	 * After that it calls the initialize method of the SSRC
 	 * 
 	 */
-	
+
 	public static void main(String[] args) {
 
 		setupLogging();
-		
+
 		try {
-			Configuration.init();	
+			Configuration.init();
 			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap());
-			
-			IfMap.initSsrc(Configuration.ifmapAuthMethod(), Configuration.ifmapUrlBasic(), Configuration.ifmapUrlCert(),
-					Configuration.ifmapBasicUser(), Configuration.ifmapBasicPassword(), Configuration.keyStorePath(),
-					Configuration.keyStorePassword());
-			
+
+			IfMap.initSsrc(Configuration.ifmapAuthMethod(), Configuration.ifmapUrlBasic(),
+					Configuration.ifmapUrlCert(), Configuration.ifmapBasicUser(), Configuration.ifmapBasicPassword(),
+					Configuration.keyStorePath(), Configuration.keyStorePassword());
+
 			IfMap.getSsrc().newSession();
 			IfMap.getSsrc().purgePublisher();
 
 			Timer timerA = new Timer();
 			timerA.schedule(new SsrcKeepaliveThread(), 1000, Configuration.ifmapKeepalive() * 1000 * 60);
-			
+
 			try {
-				WebSocketConnector webSockCon = new WebSocketConnector(Configuration.websocketServerUrl());						
+				WebSocketConnector webSockCon = new WebSocketConnector(Configuration.websocketServerUrl());
 				try {
 					webSockCon.setActive();
-									
-					
+
 				} catch (IOException e) {
 					LOGGER.severe("Error setting up the websocket connection... System can not start!");
 				} catch (Exception e) {
 					LOGGER.severe("Error setting up the websocket connection... System can not start!");
-				}			
+				}
 			} catch (URISyntaxException e) {
 				LOGGER.severe("WebSocket Uri Syntax not correct... System can not start!");
-			}		
-		
+			}
+
 		} catch (FileNotFoundException e1) {
 			LOGGER.severe("Error setting up the configuration... System can not start!");
 		} catch (IOException e1) {
@@ -122,11 +128,9 @@ public class Irongenlog {
 		} catch (IfmapException e1) {
 			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
 		}
-		
+
 	}
 
-
-	
 	/**
 	 * Initialize logging
 	 * 

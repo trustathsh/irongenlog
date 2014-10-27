@@ -64,7 +64,7 @@ import de.hshannover.f4.trust.irongenlog.utilities.IfMap;
 public class ClientWebSocketHandler {
 
 	private static final Logger LOGGER = Logger.getLogger(ClientWebSocketHandler.class.getName());
-	
+
 	private Session mSession;
 	private Timer mWebsocketKeepAliveTimer;
 	private ObjectMapper mMapper = new ObjectMapper();
@@ -90,7 +90,7 @@ public class ClientWebSocketHandler {
 	 */
 	@OnWebSocketClose
 	public void onClose(int statusCode, String reason) {
-		LOGGER.info("Connection closed: "+statusCode+" - "+reason);
+		LOGGER.info("Connection closed: " + statusCode + " - " + reason);
 		mWebsocketKeepAliveTimer.cancel();
 		this.mSession = null;
 	}
@@ -104,7 +104,7 @@ public class ClientWebSocketHandler {
 	 */
 	@OnWebSocketConnect
 	public void onConnect(Session session) {
-		LOGGER.info("Got connect: "+ session);
+		LOGGER.info("Got connect: " + session);
 		this.mSession = session;
 
 		Timer websocketKeepAliveTimer = new Timer();
@@ -122,26 +122,26 @@ public class ClientWebSocketHandler {
 	 */
 	@OnWebSocketMessage
 	public void onMessage(String msg) {
-		LOGGER.info("Got msg: "+ msg);
-		
+		LOGGER.info("Got msg: " + msg);
+
 		try {
 			JsonNode rootNode = mMapper.readValue(msg, JsonNode.class);
-			
+
 			PublishLogDataStrategy strategyObj;
 
 			for (int i = 0; i < StrategyChainBuilder.getSize(); i++) {
 				strategyObj = StrategyChainBuilder.getElementAt(i);
 				strategyObj.publishLogData(IfMap.getSsrc(), rootNode);
 			}
-			
+
 		} catch (JsonParseException e) {
-			LOGGER.severe("Error parsing json string: "+ e);
+			LOGGER.severe("Error parsing json string: " + e);
 		} catch (JsonMappingException e) {
-			LOGGER.severe("Error mapping json string: "+ e);
+			LOGGER.severe("Error mapping json string: " + e);
 		} catch (IOException e) {
-			LOGGER.severe("Error getting json string: "+ e);
-		}	
+			LOGGER.severe("Error getting json string: " + e);
+		}
 
 	}
-	
+
 }

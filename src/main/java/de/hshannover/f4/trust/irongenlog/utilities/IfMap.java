@@ -47,9 +47,9 @@ import de.hshannover.f4.trust.ifmapj.config.BasicAuthConfig;
 import de.hshannover.f4.trust.ifmapj.config.CertAuthConfig;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
 
-
 /**
- * A ifmap class to initiate the ifmap server connection and to get the ssrc and arc channel
+ * A ifmap class to initiate the ifmap server connection and to get the ssrc and
+ * arc channel
  */
 public final class IfMap {
 
@@ -78,8 +78,10 @@ public final class IfMap {
 	 * @param keypath
 	 * @param keypass
 	 * @return SSRC
-	 * @throws InitializationException 
+	 * @throws InitializationException
+	 *             if the security informations could not be read
 	 */
+
 	public static SSRC initSsrc(String authMethod, String basicUrl, String certUrl, String user, String pass,
 			String keypath, String keypass) throws InitializationException {
 
