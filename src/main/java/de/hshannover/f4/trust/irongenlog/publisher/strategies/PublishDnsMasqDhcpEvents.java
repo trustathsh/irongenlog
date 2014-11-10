@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.w3c.dom.Document;
 
+import de.hshannover.f4.trust.ifmapj.binding.IfmapStrings;
 import de.hshannover.f4.trust.ifmapj.channel.SSRC;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
@@ -52,6 +53,7 @@ import de.hshannover.f4.trust.ifmapj.identifier.Identifiers;
 import de.hshannover.f4.trust.ifmapj.identifier.IpAddress;
 import de.hshannover.f4.trust.ifmapj.identifier.MacAddress;
 import de.hshannover.f4.trust.ifmapj.messages.MetadataLifetime;
+import de.hshannover.f4.trust.ifmapj.messages.PublishDelete;
 import de.hshannover.f4.trust.ifmapj.messages.PublishUpdate;
 import de.hshannover.f4.trust.ifmapj.messages.Requests;
 import de.hshannover.f4.trust.irongenlog.publisher.PublishLogDataStrategy;
@@ -139,6 +141,7 @@ public class PublishDnsMasqDhcpEvents extends PublishLogDataStrategy {
 	private void publishDhcpRequest(SSRC ssrc, JsonNode rootNode) {
 
 		try {
+			
 			// accessrequest to mac
 			MacAddress macHost = Identifiers.createMac(rootNode.path("MAC").getTextValue());
 			AccessRequest ar = Identifiers.createAr("DHCPREQUEST_" + rootNode.path("IP").getTextValue());
@@ -147,11 +150,18 @@ public class PublishDnsMasqDhcpEvents extends PublishLogDataStrategy {
 			PublishUpdate publishArMac = Requests.createPublishUpdate(macHost, ar, docArMac, MetadataLifetime.session);
 			ssrc.publish(Requests.createPublishReq(publishArMac));
 
+			// del ip-mac
+			IpAddress ipHost = Identifiers.createIp4(rootNode.path("IP").getTextValue());			
+			PublishDelete del = Requests.createPublishDelete(ipHost, macHost,
+					"meta:ip-mac[@ifmap-publisher-id='" + ssrc.getPublisherId() + "']");
+			del.addNamespaceDeclaration(IfmapStrings.STD_METADATA_PREFIX, IfmapStrings.STD_METADATA_NS_URI);
+			ssrc.publish(Requests.createPublishReq(del));	
+			
+			
 			// ip to mac
-			IpAddress ipHost = Identifiers.createIp4(rootNode.path("IP").getTextValue());
 			Document docIpMac = getMetadataFactory().createIpMac(null, null,
-					rootNode.path("DHCPSERVERNAME").getTextValue());
-
+					rootNode.path("DHCPSERVERNAME").getTextValue());		
+			
 			PublishUpdate publishIpMac = Requests.createPublishUpdate(macHost, ipHost, docIpMac,
 					MetadataLifetime.session);
 			ssrc.publish(Requests.createPublishReq(publishIpMac));

@@ -39,13 +39,13 @@
 
 package de.hshannover.f4.trust.irongenlog;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map.Entry;
-import java.util.Properties;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
+
+import de.hshannover.f4.trust.yamlproperties.Properties;
+import de.hshannover.f4.trust.yamlproperties.PropertyException;
 
 /**
  * This class loads the configuration file from the file system and provides a
@@ -63,29 +63,26 @@ public final class Configuration {
 	 * The path to the configuration file.
 	 */
 
-	private static final String CONFIG_FILE = "/irongenlog.properties";
+	private static final String CONFIG_FILE = "/irongenlog.yml";
 
 	private static Properties mProperties;
-
-	private static Properties mClassnamesForRequestStrategy;
 
 	// begin configuration parameter -------------------------------------------
 
 	private static final String IFMAP_AUTH_METHOD = "ifmap.server.auth.method";
 	private static final String IFMAP_URL_BASIC = "ifmap.server.url.basic";
 	private static final String IFMAP_URL_CERT = "ifmap.server.url.cert";
-	private static final String IFMAP_BASIC_USER = "ifmap.server.auth.basic.user";
-	private static final String IFMAP_BASIC_PASSWORD = "ifmap.server.auth.basic.password";
-
-	private static final String KEYSTORE_PATH = "keystore.path";
-	private static final String KEYSTORE_PASSWORD = "keystore.password";
-
+	private static final String IFMAP_BASIC_USER = "ifmap.server.auth.user";
+	private static final String IFMAP_BASIC_PASSWORD = "ifmap.server.auth.password";
+	
 	private static final String IFMAP_KEEPALIVE = "ifmap.client.keepalive";
+	private static final String KEYSTORE_PATH = "ifmap.client.keystore.path";
+	private static final String KEYSTORE_PASSWORD = "ifmap.client.keystore.password";
 
-	private static final String WEBSOCKET_SERVER_URL = "websocket.server.url";
+	private static final String WEBSOCKET_SERVER_URL = "ifmap.client.websocketserverurl";
 
-	// publisher
-	private static final String REQUEST_STRATEGIES_CLASSNAMES_FILENAME = "irongenlog.publisher.strategies";
+	private static final String STRATEGIES_PACKAGE_PATH = "ifmap.client.publishstrategiespath";
+	private static final String STRATEGIES_CLASSNAMES_FILENAME = "ifmap.client.publishstrategies";
 
 	// end configuration parameter ---------------------------------------------
 
@@ -99,170 +96,137 @@ public final class Configuration {
 	/**
 	 * Loads the configuration file. Every time this method is called the file
 	 * is read again.
+	 * @throws PropertyException 
+	 * 			   To signalise a failure while opening to calling classes
 	 * 
-	 * @throws IOException
-	 *             To signalise a failure while reading to calling classes
-	 * @throws FileNotFoundException
-	 *             To signalise a failure while opening to calling classes
 	 */
-	public static void init() throws IOException, FileNotFoundException {
+	public static void init() throws PropertyException{
 		LOGGER.info("reading " + CONFIG_FILE + " ...");
-
-		mProperties = new Properties();
-		mClassnamesForRequestStrategy = new Properties();
-
-		InputStream in = Configuration.class.getResourceAsStream(CONFIG_FILE);
-		loadPropertiesfromFile(in, mProperties);
-
-		in = Configuration.class.getResourceAsStream("/" + irongenlogRequestStrategiesClassnamePropertiesFilename());
-		loadPropertiesfromFile(in, mClassnamesForRequestStrategy);
-
-	}
-
-	/**
-	 * Loads the configuration file. Every time this method is called the file
-	 * is read again.
-	 * 
-	 * @param in
-	 *            Streamreader
-	 * @param props
-	 *            properties
-	 * @throws IOException
-	 *             To signalise a failure while reading to calling classes
-	 */
-	private static void loadPropertiesfromFile(InputStream in, Properties props) throws IOException,
-			FileNotFoundException {
-
-		try {
-			props.load(in);
-		} catch (FileNotFoundException e) {
-			LOGGER.severe("could not find " + CONFIG_FILE);
-			throw e;
-		} catch (IOException e) {
-			LOGGER.severe("error while reading " + CONFIG_FILE);
-			throw e;
-		} finally {
-			try {
-				in.close();
-			} catch (IOException e) {
-				LOGGER.warning("error while closing properties inputstream: " + e);
-			}
-
-		}
-	}
-
-	/**
-	 * Returns the value assigned to the given key. If the configuration has not
-	 * been loaded jet this method loads it.
-	 * 
-	 * @param key
-	 * @return the value assigned to key or null if it is none
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 */
-	private static String get(String key) {
-		return mProperties.getProperty(key);
+		String config = Configuration.class.getResource(CONFIG_FILE).getPath();
+		mProperties = new Properties(config);
 	}
 
 	/**
 	 * Getter for the request Strategies classname map.
 	 * 
 	 * @return the set of classnames for request strategies
-	 * @throws IOException
-	 * @throws FileNotFoundException
+	 * @throws PropertyException 
 	 */
-	public static Set<Entry<Object, Object>> getRequestStrategiesClassnameMap() {
-		return mClassnamesForRequestStrategy.entrySet();
-	}
+	@SuppressWarnings("unchecked")
+	public static Set<Entry<String, Object>> getRequestStrategiesClassnameMap() throws PropertyException {
 
+		return ((Map<String, Object>) mProperties.getValue(STRATEGIES_CLASSNAMES_FILENAME)).entrySet();
+	}
+	
 	/**
 	 * Getter for the ifmapAuthMethod property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String ifmapAuthMethod() {
-		return get(IFMAP_AUTH_METHOD);
+	public static String ifmapAuthMethod() throws PropertyException {
+		return mProperties.getString(IFMAP_AUTH_METHOD);
+
 	}
 
 	/**
 	 * Getter for the ifmapUrlBasic property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String ifmapUrlBasic() {
-		return get(IFMAP_URL_BASIC);
+	public static String ifmapUrlBasic() throws PropertyException {
+		return mProperties.getString(IFMAP_URL_BASIC);
 	}
 
 	/**
 	 * Getter for the ifmapUrlCert property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String ifmapUrlCert() {
-		return get(IFMAP_URL_CERT);
+	public static String ifmapUrlCert() throws PropertyException {
+		return mProperties.getString(IFMAP_URL_CERT);
 	}
 
 	/**
 	 * Getter for the ifmapBasicUser property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String ifmapBasicUser() {
-		return get(IFMAP_BASIC_USER);
+	public static String ifmapBasicUser() throws PropertyException {
+		return mProperties.getString(IFMAP_BASIC_USER);
 	}
 
 	/**
 	 * Getter for the ifmapBasicPassword property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String ifmapBasicPassword() {
-		return get(IFMAP_BASIC_PASSWORD);
+	public static String ifmapBasicPassword() throws PropertyException {
+		return mProperties.getString(IFMAP_BASIC_PASSWORD);
 	}
 
 	/**
 	 * Getter for the keyStorePath property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String keyStorePath() {
-		return get(KEYSTORE_PATH);
+	public static String keyStorePath() throws PropertyException {
+		return mProperties.getString(KEYSTORE_PATH);
 	}
 
 	/**
 	 * Getter for the keyStorePassword property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String keyStorePassword() {
-		return get(KEYSTORE_PASSWORD);
+	public static String keyStorePassword() throws PropertyException {
+		return mProperties.getString(KEYSTORE_PASSWORD);
 	}
 
 	/**
 	 * Getter for the openFlowControllerIP property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String websocketServerUrl() {
-		return get(WEBSOCKET_SERVER_URL);
+	public static String websocketServerUrl() throws PropertyException {
+		return mProperties.getString(WEBSOCKET_SERVER_URL);
 	}
 
 	/**
 	 * Getter for the request strategies ClassnamePropertiesFilename property.
 	 * 
 	 * @return property string
+	 * @throws PropertyException
 	 */
-	public static String irongenlogRequestStrategiesClassnamePropertiesFilename() {
-		return get(REQUEST_STRATEGIES_CLASSNAMES_FILENAME);
+	public static String irongenlogRequestStrategiesClassnamePropertiesFilename() throws PropertyException {
+		return mProperties.getString(STRATEGIES_CLASSNAMES_FILENAME);
 	}
 
 	/**
 	 * Getter for the ifmapKeepalive property.
 	 * 
 	 * @return property integer
+	 * @throws PropertyException
 	 */
-	public static int ifmapKeepalive() {
-		return Integer.parseInt(get(IFMAP_KEEPALIVE));
+	public static int ifmapKeepalive() throws PropertyException {
+		return mProperties.getInt(IFMAP_KEEPALIVE);
 	}
+
+	/**
+	 * Getter for the strategies package path property.
+	 * 
+	 * @return property path
+	 * @throws PropertyException 
+	 */
+	public static String strategiesPackagePath() throws PropertyException {
+		return mProperties.getString(STRATEGIES_PACKAGE_PATH);
+	}	
 
 }

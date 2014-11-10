@@ -39,7 +39,6 @@
 
 package de.hshannover.f4.trust.irongenlog;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -57,6 +56,7 @@ import de.hshannover.f4.trust.irongenlog.publisher.StrategyChainBuilder;
 import de.hshannover.f4.trust.irongenlog.utilities.IfMap;
 import de.hshannover.f4.trust.irongenlog.utilities.SsrcKeepaliveThread;
 import de.hshannover.f4.trust.irongenlog.websocketconnector.WebSocketConnector;
+import de.hshannover.f4.trust.yamlproperties.PropertyException;
 
 /**
  * This class starts the application It creates the threads for publishing,
@@ -91,7 +91,8 @@ public final class Irongenlog {
 
 		try {
 			Configuration.init();
-			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap());
+			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap(),
+					Configuration.strategiesPackagePath());
 
 			IfMap.initSsrc(Configuration.ifmapAuthMethod(), Configuration.ifmapUrlBasic(),
 					Configuration.ifmapUrlCert(), Configuration.ifmapBasicUser(), Configuration.ifmapBasicPassword(),
@@ -115,18 +116,16 @@ public final class Irongenlog {
 				}
 			} catch (URISyntaxException e) {
 				LOGGER.severe("WebSocket Uri Syntax not correct... System can not start!");
-			}
+			} 
 
-		} catch (FileNotFoundException e1) {
-			LOGGER.severe("Error setting up the configuration... System can not start!");
-		} catch (IOException e1) {
-			LOGGER.severe("Error setting up the configuration... System can not start!");
 		} catch (InitializationException e1) {
 			LOGGER.severe("Error setting up the ssrc channel... System can not start!");
 		} catch (IfmapErrorResult e1) {
 			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
 		} catch (IfmapException e1) {
 			LOGGER.severe("Error setting up the ssrc channel session... System can not start!");
+		} catch (PropertyException e1) {
+			LOGGER.severe("Error setting up the configuration... System can not start!");
 		}
 
 	}
@@ -157,7 +156,6 @@ public final class Irongenlog {
 					in.close();
 				} catch (IOException e) {
 					LOGGER.warning("could not close log config inputstream: " + e);
-					e.printStackTrace();
 				}
 			}
 		}

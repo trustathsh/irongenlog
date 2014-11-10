@@ -59,11 +59,6 @@ public final class StrategyChainBuilder {
 	private static final Logger LOGGER = Logger.getLogger(StrategyChainBuilder.class.getName());
 
 	/**
-	 * The package path to the strategy classes.
-	 */
-	private static final String PACKAGE_PATH = "de.hshannover.f4.trust.irongenlog.publisher.strategies.";
-
-	/**
 	 * the List/Chain with the different strategy objects
 	 */
 	private static ArrayList<PublishLogDataStrategy> strategyChain;
@@ -81,22 +76,22 @@ public final class StrategyChainBuilder {
 	 * packagepath
 	 */
 
-	public static void init(Set<Entry<Object, Object>> strategieNames) {
+	public static void init(Set<Entry<String, Object>> strategieNames, String packagePath) {
 
-		LOGGER.info("looking for classes in package " + PACKAGE_PATH);
+		LOGGER.info("looking for classes in package " + packagePath);
 
 		PublishLogDataStrategy publisherStrategy;
-		Iterator<Entry<Object, Object>> iteClassnames = strategieNames.iterator();
+		Iterator<Entry<String, Object>> iteClassnames = strategieNames.iterator();
 		strategyChain = new ArrayList<PublishLogDataStrategy>();
 
 		while (iteClassnames.hasNext()) {
 
-			Entry<Object, Object> classname = iteClassnames.next();
+			Entry<String, Object> classname = iteClassnames.next();
 			LOGGER.info("found classString " + classname.getKey().toString());
 
 			if (classname.getValue().toString().equals("enabled")) {
 
-				publisherStrategy = createNewStrategie(PACKAGE_PATH + classname.getKey().toString());
+				publisherStrategy = createNewStrategie(packagePath + classname.getKey().toString());
 				if (publisherStrategy != null) {
 					strategyChain.add(publisherStrategy);
 				}
