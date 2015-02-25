@@ -44,8 +44,8 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import de.hshannover.f4.trust.yamlproperties.Properties;
-import de.hshannover.f4.trust.yamlproperties.PropertyException;
+import de.hshannover.f4.trust.ironcommon.properties.Properties;
+import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 
 /**
  * This class loads the configuration file from the file system and provides a

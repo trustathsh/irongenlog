@@ -52,11 +52,12 @@ import java.util.logging.Logger;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapErrorResult;
 import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
+import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.irongenlog.publisher.StrategyChainBuilder;
 import de.hshannover.f4.trust.irongenlog.utilities.IfMap;
 import de.hshannover.f4.trust.irongenlog.utilities.SsrcKeepaliveThread;
 import de.hshannover.f4.trust.irongenlog.websocketconnector.WebSocketConnector;
-import de.hshannover.f4.trust.yamlproperties.PropertyException;
+
 
 /**
  * This class starts the application It creates the threads for publishing,

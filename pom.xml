@@ -130,6 +130,12 @@
 	</dependency>
 	
 	<dependency>
+  		<groupId>de.hshannover.f4.trust</groupId>
+  		<artifactId>ironcommon</artifactId>
+  		<version>0.1.0</version>
+	</dependency>
+	
+	<dependency>
 		<groupId>de.hshannover.f4.trust</groupId>
 		<artifactId>ifmapj</artifactId>
 		<version>2.2.0</version>
