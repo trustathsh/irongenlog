@@ -38,13 +38,10 @@
  */
 package de.hshannover.f4.trust.irongenlog.publisher;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-
-import org.codehaus.jackson.map.util.ClassUtil;
 
 import de.hshannover.f4.trust.irongenlog.strategyparser.IfMapStrategyParser;
 

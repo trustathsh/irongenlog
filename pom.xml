@@ -1,7 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  
-  <!-- general project information -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- general project information -->
 	<groupId>de.hshannover.f4.trust</groupId>
 	<artifactId>irongenlog</artifactId>
 	<version>0.0.1</version>
@@ -44,7 +45,7 @@
 			<name>Marius Rohde</name>
 		</contributor>
 	</contributors>
-  
+
 	<build>
 		<plugins>
 			<plugin>
@@ -56,15 +57,18 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>2.10</version>
 				<configuration>
 					<propertyExpansion>headerfile=${project.basedir}/src/license/dummy/Dummy.java</propertyExpansion>
-					<configLocation>http://trust.f4.hs-hannover.de/download/dev_docs/code_conventions/trustHsHCodeconventions.xml</configLocation>
+					<configLocation>https://raw.githubusercontent.com/trustathsh/ironcommon/master/src/main/documents/trustAtHsHCheckstylePolicy.xml</configLocation>
 				</configuration>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -112,29 +116,30 @@
 					</roots>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>javacc-maven-plugin</artifactId>
 				<version>2.6</version>
 				<executions>
-		          <execution>
-		            <id>jjtree-javacc</id>
-		            <goals>
-		              <goal>jjtree-javacc</goal>
-		            </goals>
-		            <configuration>
-		              <!-- options for JJTree and JavaCC go here -->
-		            </configuration>
-		          </execution>
-		        </executions>
+					<execution>
+						<id>jjtree-javacc</id>
+						<goals>
+							<goal>jjtree-javacc</goal>
+						</goals>
+						<configuration>
+							<!-- options for JJTree and JavaCC go here -->
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
-			
+
 		</plugins>
-		
+
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -168,46 +173,46 @@
 			</plugins>
 		</pluginManagement>
 	</build>
- 
-  <dependencies>
-  	
-	<dependency>
-		<groupId>org.codehaus.jackson</groupId>
-		<artifactId>jackson-jaxrs</artifactId>
-		<version>1.9.13</version>
-	</dependency>
-	
-	<dependency>
-  		<groupId>org.eclipse.jetty.websocket</groupId>
-  		<artifactId>websocket-client</artifactId>
-  		<version>9.2.3.v20140905</version>
-	</dependency>
-	
-	<dependency>
-  		<groupId>de.hshannover.f4.trust</groupId>
-  		<artifactId>ironcommon</artifactId>
-  		<version>0.1.0</version>
-	</dependency>
-	
-	<dependency>
-		<groupId>de.hshannover.f4.trust</groupId>
-		<artifactId>ifmapj</artifactId>
-		<version>2.2.0</version>
-	</dependency>
-	
-	<dependency>
-	    <groupId>org.yaml</groupId>
-        <artifactId>snakeyaml</artifactId>
-        <version>1.13</version>
-    </dependency>
-    
-   	<dependency>
-		<groupId>log4j</groupId>
-		<artifactId>log4j</artifactId>
-		<version>1.2.16</version>
-	</dependency>
-	
-  </dependencies>
-  
-  
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>websocket-client</artifactId>
+			<version>9.2.3.v20140905</version>
+		</dependency>
+
+		<dependency>
+			<groupId>de.hshannover.f4.trust</groupId>
+			<artifactId>ironcommon</artifactId>
+			<version>0.1.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>de.hshannover.f4.trust</groupId>
+			<artifactId>ifmapj</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.13</version>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.16</version>
+		</dependency>
+
+	</dependencies>
+
+
 </project>
