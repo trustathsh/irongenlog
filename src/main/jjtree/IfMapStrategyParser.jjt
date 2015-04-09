@@ -1,0 +1,2096 @@
+options
+{
+    STATIC = false ;
+}
+
+PARSER_BEGIN(IfMapStrategyParser)
+package de.hshannover.f4.trust.irongenlog.strategyparser;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.FileInputStream;
+ 
+public class IfMapStrategyParser
+{
+
+	private FileWriter mWriter;
+     
+    public static IfMapStrategyParser getNewParser(String inputFile, String outputPath) throws Exception
+    {
+        IfMapStrategyParser parser = null; 
+
+        String inputPath = IfMapStrategyParser.class.getResource(inputFile).getPath();
+        System.out.println(inputPath);
+        parser = new IfMapStrategyParser(new FileInputStream(inputPath));
+		File file = new File(outputPath);
+		parser.setWriter( new FileWriter(file ,false) );                  	      
+
+        return parser;
+    }
+
+    public void parse() throws Exception
+    {
+	    this.root();       	mWriter.flush();       
+		mWriter.close();    }
+    
+    public void setWriter(FileWriter writer)
+    {		this.mWriter = writer;
+    }    
+}
+PARSER_END(IfMapStrategyParser)
+
+
+SKIP:    // defines input to be ignored
+{ " " | "\t" }
+
+// end of line / file and others
+TOKEN:    // defines token names
+{
+  < EOL : ( "\r\n" | "\n" | "\r" ) >
+}
+
+/* JAVA WORDS */
+TOKEN:
+{
+    < PACKAGE: "package:" >
+  | < CLASS: "class:" >
+  | < METHOD: "method:" >
+  | < CALL: "call:" >
+  | < IF: "if:">
+  | < ELSEIF: "elseif:">
+  | < ELSE: "else:">
+}
+
+/* IFMAP WORDS */
+TOKEN:
+{
+    < PUBLISHLOGDATA: "publishLogData:">
+  | < UPDATE: "update:" >
+  | < DELETE: "delete:" >
+  | < NOTIFY: "notify:" >
+  | < IDENTIFIER1: "identifier1 = " >
+  | < IDENTIFIER2: "identifier2 = " >
+  | < METADATA: "meta = " >
+  | < METALIFETIME: "lifetime = " >
+  | < METADELETESTRING: "deleteString = " >
+}
+
+/* IFMAP IDENTIFIERS */
+TOKEN:
+{
+    < AR: "ar" >
+  | < ARPUBPREF: "arPubPrefixed">
+  | < ARRAND: "arRandom" >
+  | < ARRANDUUID: "arRandomUuid" >
+  | < DEV: "dev">
+  | < DEVPUBPREF: "devPubPrefixed">
+  | < DEVRAND: "devRandom">
+  | < DEVRANDUUID: "devRandomUuid">
+  | < IDENTITY: "identity">
+  | < IDENTITYOTHER: "identityOther">
+  | < IDENTITYEX: "identityEx" >
+  | < IP4: "ip4">
+  | < IP6: "ip6">
+  | < MAC: "mac">
+}
+
+/* IFMAP IDENTITY TYPES */
+TOKEN:
+{
+    < AIKNAME: "aikName" >
+  | < DISTINGUISHEDNAME: "distinguishedName" >
+  | < DNSNAME: "dnsName" >
+  | < EMAILADDRESS: "emailAddress" >
+  | < HIPHIT: "hipHit" >
+  | < KERBEROSPRINCIPAL: "kerberosPrincipal" >
+  | < SIPURI: "sipUri" >
+  | < TELURI: "telUri" >
+  | < USERNAME: "userName" >
+}
+
+  
+/* IFMAP METADATA */
+TOKEN:
+{
+    < METALIFETIMESESSION: "session" >
+  | < METALIFETIMEFOREVER: "forever" >
+  | < META_CREATE: "create" >
+  | < META_ARDEV: "arDev" >
+  | < META_ARIP: "arIp" >
+  | < META_ARMAC: "arMac" >
+  | < META_AUTHAS: "authAs" >
+  | < META_AUTHBY: "authBy" >
+  | < META_CAPABILITY: "capability" >
+  | < META_CLIENTTIME: "clientTime" >
+  | < META_DEVIP: "devIp" >
+  | < META_DEVATTR: "devAttr" >
+  | < META_DEVCHAR: "devChar" >
+  | < META_DISCOBY: "discoBy" >
+  | < META_ENFORCEMENT: "enforcementReport" >
+  | < META_EVENT: "event" >
+  | < META_IPMAC: "ipMac" >
+  | < META_LAYER2: "layer2Information" >
+  | < META_LOCATION: "location" >
+  | < META_INVESTIGATION: "requestForInvestigation" >
+  | < META_ROLE: "role" >
+  | < META_UNEXPECTEDBEHAVIOR: "unexpectedBehavior" >
+  | < META_WLANINFORMATION: "wlanInformation" >  
+
+}
+
+/* IFMAP METADATA TYPES */
+
+TOKEN:
+{
+    < METACARDINALITYSINGLE: "singleValue" >
+  | < METACARDINALITYMULTI: "multiValue" >
+  | < METAENFORCEMENTACTIONBLOCK: "block" >
+  | < METAENFORCEMENTACTIONOTHER: "other" >
+  | < METAENFORCEMENTACTIONQUARANTINE: "quarantine" >
+  | < METASIGNIFICANCECRITICAL: "critical" >
+  | < METASIGNIFICANCEIMPORTANT: "important" >
+  | < METASIGNIFICANCEINFORMATIONAL: "informational" >
+  | < METAEVENTTYPEBEHAVIOR: "behavioralChange" >
+  | < METAEVENTTYPEBOTNET: "botnetInfection" >
+  | < METAEVENTTYPECVE: "cve" >
+  | < METAEVENTTYPEFLOWS: "excessiveFlows" >
+  | < METAEVENTTYPEOTHER: "otherEvent" >
+  | < METAEVENTTYPEP2P: "p2p" >
+  | < METAEVENTTYPEPOLICY: "policyViolation" >
+  | < METAEVENTTYPEWORM: "wormInfection" >
+}
+/* IDENTIFIERS */
+TOKEN:
+{
+    < JAVANAME: <IDENTIFIER> >
+    | < SEARCHSTRING: "'" <IDENTIFIER> (<SEARCHSTRINGTOKEN>)* "'" >
+ 	| < #SEARCHSTRINGTOKEN: (<IDENTIFIER> | ":" | "=" | "@" | "-" | "(" | ")" | "[" | "]" | " " | "'" | "+" | "." | "," | "\"") >
+ 	| < JSONSTRINGNAME: ("\"" <IDENTIFIER> ( <IDENTIFIER> | "-")* "\"") >
+}
+
+TOKEN:
+{  < PACKAGENAME: (<NAME>) >
+  | < #NAME:	<IDENTIFIER> ( "." <IDENTIFIER> )* >
+}
+
+<DEFAULT> TOKEN : {
+<IDENTIFIER: <LETTER> (<PART_LETTER>)*>
+| <#LETTER: ["$","A"-"Z","_","a"-"z","\u00a2"-"\u00a5","\u00aa","\u00b5","\u00ba","\u00c0"-"\u00d6","\u00d8"-"\u00f6","\u00f8"-"\u021f","\u0222"-"\u0233","\u0250"-"\u02ad","\u02b0"-"\u02b8","\u02bb"-"\u02c1","\u02d0"-"\u02d1","\u02e0"-"\u02e4","\u02ee","\u037a","\u0386","\u0388"-"\u038a","\u038c","\u038e"-"\u03a1","\u03a3"-"\u03ce","\u03d0"-"\u03d7","\u03da"-"\u03f3","\u0400"-"\u0481","\u048c"-"\u04c4","\u04c7"-"\u04c8","\u04cb"-"\u04cc","\u04d0"-"\u04f5","\u04f8"-"\u04f9","\u0531"-"\u0556","\u0559","\u0561"-"\u0587","\u05d0"-"\u05ea","\u05f0"-"\u05f2","\u0621"-"\u063a","\u0640"-"\u064a","\u0671"-"\u06d3","\u06d5","\u06e5"-"\u06e6","\u06fa"-"\u06fc","\u0710","\u0712"-"\u072c","\u0780"-"\u07a5","\u0905"-"\u0939","\u093d","\u0950","\u0958"-"\u0961","\u0985"-"\u098c","\u098f"-"\u0990","\u0993"-"\u09a8","\u09aa"-"\u09b0","\u09b2","\u09b6"-"\u09b9","\u09dc"-"\u09dd","\u09df"-"\u09e1","\u09f0"-"\u09f3","\u0a05"-"\u0a0a","\u0a0f"-"\u0a10","\u0a13"-"\u0a28","\u0a2a"-"\u0a30","\u0a32"-"\u0a33","\u0a35"-"\u0a36","\u0a38"-"\u0a39","\u0a59"-"\u0a5c","\u0a5e","\u0a72"-"\u0a74","\u0a85"-"\u0a8b","\u0a8d","\u0a8f"-"\u0a91","\u0a93"-"\u0aa8","\u0aaa"-"\u0ab0","\u0ab2"-"\u0ab3","\u0ab5"-"\u0ab9","\u0abd","\u0ad0","\u0ae0","\u0b05"-"\u0b0c","\u0b0f"-"\u0b10","\u0b13"-"\u0b28","\u0b2a"-"\u0b30","\u0b32"-"\u0b33","\u0b36"-"\u0b39","\u0b3d","\u0b5c"-"\u0b5d","\u0b5f"-"\u0b61","\u0b85"-"\u0b8a","\u0b8e"-"\u0b90","\u0b92"-"\u0b95","\u0b99"-"\u0b9a","\u0b9c","\u0b9e"-"\u0b9f","\u0ba3"-"\u0ba4","\u0ba8"-"\u0baa","\u0bae"-"\u0bb5","\u0bb7"-"\u0bb9","\u0c05"-"\u0c0c","\u0c0e"-"\u0c10","\u0c12"-"\u0c28","\u0c2a"-"\u0c33","\u0c35"-"\u0c39","\u0c60"-"\u0c61","\u0c85"-"\u0c8c","\u0c8e"-"\u0c90","\u0c92"-"\u0ca8","\u0caa"-"\u0cb3","\u0cb5"-"\u0cb9","\u0cde","\u0ce0"-"\u0ce1","\u0d05"-"\u0d0c","\u0d0e"-"\u0d10","\u0d12"-"\u0d28","\u0d2a"-"\u0d39","\u0d60"-"\u0d61","\u0d85"-"\u0d96","\u0d9a"-"\u0db1","\u0db3"-"\u0dbb","\u0dbd","\u0dc0"-"\u0dc6","\u0e01"-"\u0e30","\u0e32"-"\u0e33","\u0e3f"-"\u0e46","\u0e81"-"\u0e82","\u0e84","\u0e87"-"\u0e88","\u0e8a","\u0e8d","\u0e94"-"\u0e97","\u0e99"-"\u0e9f","\u0ea1"-"\u0ea3","\u0ea5","\u0ea7","\u0eaa"-"\u0eab","\u0ead"-"\u0eb0","\u0eb2"-"\u0eb3","\u0ebd","\u0ec0"-"\u0ec4","\u0ec6","\u0edc"-"\u0edd","\u0f00","\u0f40"-"\u0f47","\u0f49"-"\u0f6a","\u0f88"-"\u0f8b","\u1000"-"\u1021","\u1023"-"\u1027","\u1029"-"\u102a","\u1050"-"\u1055","\u10a0"-"\u10c5","\u10d0"-"\u10f6","\u1100"-"\u1159","\u115f"-"\u11a2","\u11a8"-"\u11f9","\u1200"-"\u1206","\u1208"-"\u1246","\u1248","\u124a"-"\u124d","\u1250"-"\u1256","\u1258","\u125a"-"\u125d","\u1260"-"\u1286","\u1288","\u128a"-"\u128d","\u1290"-"\u12ae","\u12b0","\u12b2"-"\u12b5","\u12b8"-"\u12be","\u12c0","\u12c2"-"\u12c5","\u12c8"-"\u12ce","\u12d0"-"\u12d6","\u12d8"-"\u12ee","\u12f0"-"\u130e","\u1310","\u1312"-"\u1315","\u1318"-"\u131e","\u1320"-"\u1346","\u1348"-"\u135a","\u13a0"-"\u13f4","\u1401"-"\u166c","\u166f"-"\u1676","\u1681"-"\u169a","\u16a0"-"\u16ea","\u1780"-"\u17b3","\u17db","\u1820"-"\u1877","\u1880"-"\u18a8","\u1e00"-"\u1e9b","\u1ea0"-"\u1ef9","\u1f00"-"\u1f15","\u1f18"-"\u1f1d","\u1f20"-"\u1f45","\u1f48"-"\u1f4d","\u1f50"-"\u1f57","\u1f59","\u1f5b","\u1f5d","\u1f5f"-"\u1f7d","\u1f80"-"\u1fb4","\u1fb6"-"\u1fbc","\u1fbe","\u1fc2"-"\u1fc4","\u1fc6"-"\u1fcc","\u1fd0"-"\u1fd3","\u1fd6"-"\u1fdb","\u1fe0"-"\u1fec","\u1ff2"-"\u1ff4","\u1ff6"-"\u1ffc","\u203f"-"\u2040","\u207f","\u20a0"-"\u20af","\u2102","\u2107","\u210a"-"\u2113","\u2115","\u2119"-"\u211d","\u2124","\u2126","\u2128","\u212a"-"\u212d","\u212f"-"\u2131","\u2133"-"\u2139","\u2160"-"\u2183","\u3005"-"\u3007","\u3021"-"\u3029","\u3031"-"\u3035","\u3038"-"\u303a","\u3041"-"\u3094","\u309d"-"\u309e","\u30a1"-"\u30fe","\u3105"-"\u312c","\u3131"-"\u318e","\u31a0"-"\u31b7","\u3400"-"\u4db5","\u4e00"-"\u9fa5","\ua000"-"\ua48c","\uac00"-"\ud7a3","\uf900"-"\ufa2d","\ufb00"-"\ufb06","\ufb13"-"\ufb17","\ufb1d","\ufb1f"-"\ufb28","\ufb2a"-"\ufb36","\ufb38"-"\ufb3c","\ufb3e","\ufb40"-"\ufb41","\ufb43"-"\ufb44","\ufb46"-"\ufbb1","\ufbd3"-"\ufd3d","\ufd50"-"\ufd8f","\ufd92"-"\ufdc7","\ufdf0"-"\ufdfb","\ufe33"-"\ufe34","\ufe4d"-"\ufe4f","\ufe69","\ufe70"-"\ufe72","\ufe74","\ufe76"-"\ufefc","\uff04","\uff21"-"\uff3a","\uff3f","\uff41"-"\uff5a","\uff65"-"\uffbe","\uffc2"-"\uffc7","\uffca"-"\uffcf","\uffd2"-"\uffd7","\uffda"-"\uffdc","\uffe0"-"\uffe1","\uffe5"-"\uffe6"]>
+| <#PART_LETTER: ["\u0000"-"\b","\u000e"-"\u001b","$","0"-"9","A"-"Z","_","a"-"z","\u007f"-"\u009f","\u00a2"-"\u00a5","\u00aa","\u00b5","\u00ba","\u00c0"-"\u00d6","\u00d8"-"\u00f6","\u00f8"-"\u021f","\u0222"-"\u0233","\u0250"-"\u02ad","\u02b0"-"\u02b8","\u02bb"-"\u02c1","\u02d0"-"\u02d1","\u02e0"-"\u02e4","\u02ee","\u0300"-"\u034e","\u0360"-"\u0362","\u037a","\u0386","\u0388"-"\u038a","\u038c","\u038e"-"\u03a1","\u03a3"-"\u03ce","\u03d0"-"\u03d7","\u03da"-"\u03f3","\u0400"-"\u0481","\u0483"-"\u0486","\u048c"-"\u04c4","\u04c7"-"\u04c8","\u04cb"-"\u04cc","\u04d0"-"\u04f5","\u04f8"-"\u04f9","\u0531"-"\u0556","\u0559","\u0561"-"\u0587","\u0591"-"\u05a1","\u05a3"-"\u05b9","\u05bb"-"\u05bd","\u05bf","\u05c1"-"\u05c2","\u05c4","\u05d0"-"\u05ea","\u05f0"-"\u05f2","\u0621"-"\u063a","\u0640"-"\u0655","\u0660"-"\u0669","\u0670"-"\u06d3","\u06d5"-"\u06dc","\u06df"-"\u06e8","\u06ea"-"\u06ed","\u06f0"-"\u06fc","\u070f"-"\u072c","\u0730"-"\u074a","\u0780"-"\u07b0","\u0901"-"\u0903","\u0905"-"\u0939","\u093c"-"\u094d","\u0950"-"\u0954","\u0958"-"\u0963","\u0966"-"\u096f","\u0981"-"\u0983","\u0985"-"\u098c","\u098f"-"\u0990","\u0993"-"\u09a8","\u09aa"-"\u09b0","\u09b2","\u09b6"-"\u09b9","\u09bc","\u09be"-"\u09c4","\u09c7"-"\u09c8","\u09cb"-"\u09cd","\u09d7","\u09dc"-"\u09dd","\u09df"-"\u09e3","\u09e6"-"\u09f3","\u0a02","\u0a05"-"\u0a0a","\u0a0f"-"\u0a10","\u0a13"-"\u0a28","\u0a2a"-"\u0a30","\u0a32"-"\u0a33","\u0a35"-"\u0a36","\u0a38"-"\u0a39","\u0a3c","\u0a3e"-"\u0a42","\u0a47"-"\u0a48","\u0a4b"-"\u0a4d","\u0a59"-"\u0a5c","\u0a5e","\u0a66"-"\u0a74","\u0a81"-"\u0a83","\u0a85"-"\u0a8b","\u0a8d","\u0a8f"-"\u0a91","\u0a93"-"\u0aa8","\u0aaa"-"\u0ab0","\u0ab2"-"\u0ab3","\u0ab5"-"\u0ab9","\u0abc"-"\u0ac5","\u0ac7"-"\u0ac9","\u0acb"-"\u0acd","\u0ad0","\u0ae0","\u0ae6"-"\u0aef","\u0b01"-"\u0b03","\u0b05"-"\u0b0c","\u0b0f"-"\u0b10","\u0b13"-"\u0b28","\u0b2a"-"\u0b30","\u0b32"-"\u0b33","\u0b36"-"\u0b39","\u0b3c"-"\u0b43","\u0b47"-"\u0b48","\u0b4b"-"\u0b4d","\u0b56"-"\u0b57","\u0b5c"-"\u0b5d","\u0b5f"-"\u0b61","\u0b66"-"\u0b6f","\u0b82"-"\u0b83","\u0b85"-"\u0b8a","\u0b8e"-"\u0b90","\u0b92"-"\u0b95","\u0b99"-"\u0b9a","\u0b9c","\u0b9e"-"\u0b9f","\u0ba3"-"\u0ba4","\u0ba8"-"\u0baa","\u0bae"-"\u0bb5","\u0bb7"-"\u0bb9","\u0bbe"-"\u0bc2","\u0bc6"-"\u0bc8","\u0bca"-"\u0bcd","\u0bd7","\u0be7"-"\u0bef","\u0c01"-"\u0c03","\u0c05"-"\u0c0c","\u0c0e"-"\u0c10","\u0c12"-"\u0c28","\u0c2a"-"\u0c33","\u0c35"-"\u0c39","\u0c3e"-"\u0c44","\u0c46"-"\u0c48","\u0c4a"-"\u0c4d","\u0c55"-"\u0c56","\u0c60"-"\u0c61","\u0c66"-"\u0c6f","\u0c82"-"\u0c83","\u0c85"-"\u0c8c","\u0c8e"-"\u0c90","\u0c92"-"\u0ca8","\u0caa"-"\u0cb3","\u0cb5"-"\u0cb9","\u0cbe"-"\u0cc4","\u0cc6"-"\u0cc8","\u0cca"-"\u0ccd","\u0cd5"-"\u0cd6","\u0cde","\u0ce0"-"\u0ce1","\u0ce6"-"\u0cef","\u0d02"-"\u0d03","\u0d05"-"\u0d0c","\u0d0e"-"\u0d10","\u0d12"-"\u0d28","\u0d2a"-"\u0d39","\u0d3e"-"\u0d43","\u0d46"-"\u0d48","\u0d4a"-"\u0d4d","\u0d57","\u0d60"-"\u0d61","\u0d66"-"\u0d6f","\u0d82"-"\u0d83","\u0d85"-"\u0d96","\u0d9a"-"\u0db1","\u0db3"-"\u0dbb","\u0dbd","\u0dc0"-"\u0dc6","\u0dca","\u0dcf"-"\u0dd4","\u0dd6","\u0dd8"-"\u0ddf","\u0df2"-"\u0df3","\u0e01"-"\u0e3a","\u0e3f"-"\u0e4e","\u0e50"-"\u0e59","\u0e81"-"\u0e82","\u0e84","\u0e87"-"\u0e88","\u0e8a","\u0e8d","\u0e94"-"\u0e97","\u0e99"-"\u0e9f","\u0ea1"-"\u0ea3","\u0ea5","\u0ea7","\u0eaa"-"\u0eab","\u0ead"-"\u0eb9","\u0ebb"-"\u0ebd","\u0ec0"-"\u0ec4","\u0ec6","\u0ec8"-"\u0ecd","\u0ed0"-"\u0ed9","\u0edc"-"\u0edd","\u0f00","\u0f18"-"\u0f19","\u0f20"-"\u0f29","\u0f35","\u0f37","\u0f39","\u0f3e"-"\u0f47","\u0f49"-"\u0f6a","\u0f71"-"\u0f84","\u0f86"-"\u0f8b","\u0f90"-"\u0f97","\u0f99"-"\u0fbc","\u0fc6","\u1000"-"\u1021","\u1023"-"\u1027","\u1029"-"\u102a","\u102c"-"\u1032","\u1036"-"\u1039","\u1040"-"\u1049","\u1050"-"\u1059","\u10a0"-"\u10c5","\u10d0"-"\u10f6","\u1100"-"\u1159","\u115f"-"\u11a2","\u11a8"-"\u11f9","\u1200"-"\u1206","\u1208"-"\u1246","\u1248","\u124a"-"\u124d","\u1250"-"\u1256","\u1258","\u125a"-"\u125d","\u1260"-"\u1286","\u1288","\u128a"-"\u128d","\u1290"-"\u12ae","\u12b0","\u12b2"-"\u12b5","\u12b8"-"\u12be","\u12c0","\u12c2"-"\u12c5","\u12c8"-"\u12ce","\u12d0"-"\u12d6","\u12d8"-"\u12ee","\u12f0"-"\u130e","\u1310","\u1312"-"\u1315","\u1318"-"\u131e","\u1320"-"\u1346","\u1348"-"\u135a","\u1369"-"\u1371","\u13a0"-"\u13f4","\u1401"-"\u166c","\u166f"-"\u1676","\u1681"-"\u169a","\u16a0"-"\u16ea","\u1780"-"\u17d3","\u17db","\u17e0"-"\u17e9","\u180b"-"\u180e","\u1810"-"\u1819","\u1820"-"\u1877","\u1880"-"\u18a9","\u1e00"-"\u1e9b","\u1ea0"-"\u1ef9","\u1f00"-"\u1f15","\u1f18"-"\u1f1d","\u1f20"-"\u1f45","\u1f48"-"\u1f4d","\u1f50"-"\u1f57","\u1f59","\u1f5b","\u1f5d","\u1f5f"-"\u1f7d","\u1f80"-"\u1fb4","\u1fb6"-"\u1fbc","\u1fbe","\u1fc2"-"\u1fc4","\u1fc6"-"\u1fcc","\u1fd0"-"\u1fd3","\u1fd6"-"\u1fdb","\u1fe0"-"\u1fec","\u1ff2"-"\u1ff4","\u1ff6"-"\u1ffc","\u200c"-"\u200f","\u202a"-"\u202e","\u203f"-"\u2040","\u206a"-"\u206f","\u207f","\u20a0"-"\u20af","\u20d0"-"\u20dc","\u20e1","\u2102","\u2107","\u210a"-"\u2113","\u2115","\u2119"-"\u211d","\u2124","\u2126","\u2128","\u212a"-"\u212d","\u212f"-"\u2131","\u2133"-"\u2139","\u2160"-"\u2183","\u3005"-"\u3007","\u3021"-"\u302f","\u3031"-"\u3035","\u3038"-"\u303a","\u3041"-"\u3094","\u3099"-"\u309a","\u309d"-"\u309e","\u30a1"-"\u30fe","\u3105"-"\u312c","\u3131"-"\u318e","\u31a0"-"\u31b7","\u3400"-"\u4db5","\u4e00"-"\u9fa5","\ua000"-"\ua48c","\uac00"-"\ud7a3","\uf900"-"\ufa2d","\ufb00"-"\ufb06","\ufb13"-"\ufb17","\ufb1d"-"\ufb28","\ufb2a"-"\ufb36","\ufb38"-"\ufb3c","\ufb3e","\ufb40"-"\ufb41","\ufb43"-"\ufb44","\ufb46"-"\ufbb1","\ufbd3"-"\ufd3d","\ufd50"-"\ufd8f","\ufd92"-"\ufdc7","\ufdf0"-"\ufdfb","\ufe20"-"\ufe23","\ufe33"-"\ufe34","\ufe4d"-"\ufe4f","\ufe69","\ufe70"-"\ufe72","\ufe74","\ufe76"-"\ufefc","\ufeff","\uff04","\uff10"-"\uff19","\uff21"-"\uff3a","\uff3f","\uff41"-"\uff5a","\uff65"-"\uffbe","\uffc2"-"\uffc7","\uffca"-"\uffcf","\uffd2"-"\uffd7","\uffda"-"\uffdc","\uffe0"-"\uffe1","\uffe5"-"\uffe6","\ufff9"-"\ufffb"]>
+}
+
+
+
+int root() throws Exception:   
+{
+  int retValue;
+}    
+{ 
+  	  	(
+  	  	( < EOL > )+	  	<PACKAGE> <PACKAGENAME>
+	  	{
+	  		mWriter.write(
+		  		"package "+token.image+";\n" +
+		  		"\n"+
+				"import java.util.logging.Logger;\n"		+	
+				"import org.codehaus.jackson.JsonNode;\n" +
+				"import org.w3c.dom.Document;\n" +
+				"import de.hshannover.f4.trust.ifmapj.channel.*;\n" +
+				"import de.hshannover.f4.trust.ifmapj.exception.*;\n" +			
+				"import de.hshannover.f4.trust.ifmapj.identifier.*;\n" +		
+				"import de.hshannover.f4.trust.ifmapj.messages.*;\n" +
+				"import de.hshannover.f4.trust.ifmapj.metadata.*;\n" +
+				"import de.hshannover.f4.trust.irongenlog.publisher.PublishLogDataStrategy;\n"+
+				"\n"
+	  		);
+	  	}
+	  	( < EOL > )+
+		retValue = classDef()
+		{
+		    return retValue;		}
+ 	)
+	| <EOF>
+	{
+	 	 mWriter.write("Error!!!"); return -1;
+  	}
+}
+
+
+int classDef() throws Exception:   
+{
+  int retValue = 0;
+}    
+{ 
+  	
+  	<CLASS> <JAVANAME> 
+  	{
+	 	mWriter.write(
+	 		"public class "+token.image+" extends PublishLogDataStrategy {\n"+
+	 		"\n"+
+		  	"    private static final Logger LOGGER = Logger.getLogger("+token.image+".class.getName());\n" +
+		  	"\n"		  	
+	 	);
+  	}
+
+	( < EOL > )+
+  	
+  	retValue = publishLogData() 
+	
+	( retValue = methodDef()  )*
+  	{
+	 	mWriter.write("}");
+	 	return retValue;
+  	}
+}
+
+int publishLogData() throws Exception:   
+{
+  int retValue = 0;
+}    
+{
+    
+	<PUBLISHLOGDATA>
+  	{
+	 	mWriter.write(
+	 	  	"    @Override\n" +
+			"    public void publishLogData(SSRC ssrc, JsonNode rootNode) {\n"
+	 	);
+  	}
+  	( < EOL > )+  	
+	
+	retValue = statementDef()
+	{
+  		mWriter.write(
+			"    }\n"+
+			"\n"
+		);
+		return retValue;
+	}
+}
+
+
+int methodDef() throws Exception:   
+{
+  int retValue = 0;
+}    
+{ 
+  	
+	<METHOD> <JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  "    public void "+token.image+"(SSRC ssrc, JsonNode rootNode){\n"
+	 	  );
+  	}
+
+  	( < EOL > )+
+
+	retValue = statementDef()
+	{
+  		mWriter.write(
+		  "    }\n"+
+		  "\n"
+		  );
+		return retValue;
+	}
+}
+
+
+
+int statementDef() throws Exception:   
+{
+  int retValue = 0;
+}    
+{
+  	
+	((retValue = publishUpdate() | retValue = publishDelete() | retValue = publishNotify() | retValue = callMethode() | retValue = ifStatement() ) ( < EOL > )+ )+
+	{
+		return retValue;
+	}
+}
+
+int publishUpdate() throws Exception:   
+{
+	int retValue = 0;
+	boolean optionalIdentifier = false;
+}    
+{   	
+	<UPDATE> ( < EOL > )+
+	{
+	    mWriter.write(
+	        "        {\n"+	          
+	        "        try {\n"
+		);	  
+	}
+  	
+	retValue = ifMapIdentifier1() ( < EOL > )+
+
+	
+	[{optionalIdentifier = true;} retValue = ifMapIdentifier2() ( < EOL > )+]
+
+	retValue = ifMapMeta() ( < EOL > )+
+	{
+	    if(optionalIdentifier){			mWriter.write(
+			  	"            PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1, ident2, docMeta,"
+			);
+		}else{
+		  	mWriter.write(
+			  	"            PublishUpdate publishUpdate = Requests.createPublishUpdate(ident1, docMeta,"
+			);		}
+	 	  
+	}
+
+	retValue = ifMapMetaLifetime() 
+	{
+	    mWriter.write(
+	      	"            ssrc.publish(Requests.createPublishReq(publishUpdate));\n" +
+	 	  	"        } catch (IfmapErrorResult e) {\n" +
+			"            LOGGER.severe(\"Error publishing update data: \" + e);\n" +
+			"        } catch (IfmapException e) {\n" +
+			"            LOGGER.severe(\"Error publishing update data: \" + e);\n" +
+			"        }\n" +
+			"        }\n"
+	    );
+	    return retValue;
+	}
+
+}
+
+int publishDelete() throws Exception:   
+{
+  int retValue = 0;
+  boolean optionalIdentifier = false;
+  boolean optionalDeleteString = false;
+}    
+{
+	<DELETE> ( < EOL > )+
+	{
+	    mWriter.write(
+	        "        {\n"+	          
+	        "        try {\n"
+		);	  
+	}
+  	
+	retValue = ifMapIdentifier1()
+	
+	[LOOKAHEAD(5) {optionalIdentifier = true;} ( < EOL > )+ retValue = ifMapIdentifier2() ]
+
+	[LOOKAHEAD(5) {optionalDeleteString = true;} ( < EOL > )+ retValue = ifMapMetaDeleteString() ]
+	{
+	    if(optionalIdentifier && optionalDeleteString){
+			mWriter.write(
+			  	"            PublishDelete publishDelete = Requests.createPublishDelete(ident1, ident2, metaDeleteString);\n"
+			);
+		}else if(!optionalIdentifier && optionalDeleteString){
+		  	mWriter.write(
+			  	"            PublishDelete publishDelete = Requests.createPublishDelete(ident1, metaDeleteString);\n"
+			);
+		}else if(!optionalIdentifier && !optionalDeleteString){
+		  	mWriter.write(
+			  	"            PublishDelete publishDelete = Requests.createPublishDelete(ident1);\n"
+			);
+		}else if(optionalIdentifier && !optionalDeleteString){
+		  	mWriter.write(
+			  	"            PublishDelete publishDelete = Requests.createPublishDelete(ident1, ident2);\n"
+			);
+		}
+		
+	 	  
+	    mWriter.write(
+	      	"            ssrc.publish(Requests.createPublishReq(publishDelete));\n" +
+	 	  	"        } catch (IfmapErrorResult e) {\n" +
+			"            LOGGER.severe(\"Error publishing update data: \" + e);\n" +
+			"        } catch (IfmapException e) {\n" +
+			"            LOGGER.severe(\"Error publishing update data: \" + e);\n" +
+			"        }\n" +
+			"        }\n"
+	    );
+	    return retValue;
+	}
+
+
+}
+
+int publishNotify() throws Exception:   
+{
+  int retValue = 0;
+  boolean optionalIdentifier = false;
+}    
+{
+	<NOTIFY> ( < EOL > )+
+	{
+	    mWriter.write(
+	        "        {\n"+	          
+	        "        try {\n"
+		);	  
+	}
+  	
+	retValue = ifMapIdentifier1() ( < EOL > )+
+
+	
+	[{optionalIdentifier = true;} retValue = ifMapIdentifier2() ( < EOL > )+]
+
+	retValue = ifMapMeta()
+	{
+	    if(optionalIdentifier){
+			mWriter.write(
+			  	"            PublishNotify publishNotify = Requests.createPublishNotify(ident1, ident2, docMeta);\n"
+			);
+		}else{
+		  	mWriter.write(
+			  	"            PublishNotify publishNotify = Requests.createPublishNotify(ident1, docMeta);\n"
+			);
+		}
+
+	    mWriter.write(
+	      	"            ssrc.publish(Requests.createPublishReq(publishNotify));\n" +
+	 	  	"        } catch (IfmapErrorResult e) {\n" +
+			"            LOGGER.severe(\"Error publishing update data: \" + e);\n" +
+			"        } catch (IfmapException e) {\n" +
+			"            LOGGER.severe(\"Error publishing update data: \" + e);\n" +
+			"        }\n" +
+			"        }\n"
+	    );
+	    return retValue;
+	}
+
+}
+
+int callMethode() throws Exception:   
+{
+  int retValue = 0;
+}    
+{
+	<CALL> <JAVANAME>
+	{
+	    mWriter.write(
+	        "        "+ token.image + "(ssrc, rootNode);\n"      
+		);	  
+		return retValue; 
+	}
+}
+
+int ifStatement() throws Exception:   
+{
+  int retValue = 0;
+}    
+{
+	<IF> <JSONSTRINGNAME>
+	{
+		String firstString = token.image.substring(1, token.image.length()-1);
+	}
+
+	(	  " == "<JSONSTRINGNAME>
+	{
+	  	mWriter.write(
+	  	    "        if(rootNode.path( \"" + firstString + "\" ).getTextValue()" +
+	        ".equals(\"" + token.image.substring(1, token.image.length()-1) + "\")){\n"     
+		);
+	}
+
+	| " != "<JSONSTRINGNAME>
+	{
+	  	mWriter.write(
+	  	    "        if(!rootNode.path( \"" + firstString + "\" ).getTextValue()" +
+	        ".equals(\"" + token.image.substring(1, token.image.length()-1) + "\")){\n"     
+		);
+	}
+	)
+
+	"("( < EOL > )+
+
+    retValue = statementDef()
+
+    ")"
+	{
+	  	mWriter.write(
+	       "        }\n"     
+		);
+	}
+
+	(retValue = elseIfStatement())*
+
+	[retValue = elseStatement()]
+	
+	{
+		return retValue; 
+	}
+
+	
+}
+
+int elseIfStatement() throws Exception:   
+{
+  int retValue = 0;
+}    
+{
+	<ELSEIF> <JSONSTRINGNAME>
+	{
+		String firstString = token.image.substring(1, token.image.length()-1);
+	}
+		
+	(
+	  " == "<JSONSTRINGNAME>
+	{
+	  	mWriter.write(
+	  	    "        else if(rootNode.path( \"" + firstString + "\" ).getTextValue()" +
+	        ".equals(\"" + token.image.substring(1, token.image.length()-1) + "\")){\n"     
+		);
+	}
+
+	| " != "<JSONSTRINGNAME>
+	{
+	  	mWriter.write(
+	  	    "        else if(!rootNode.path( \"" + firstString + "\" ).getTextValue()" +
+	        ".equals(\"" + token.image.substring(1, token.image.length()-1) + "\")){\n"     
+		);
+	}
+	)
+
+	"("( < EOL > )+
+
+    retValue = statementDef()
+
+    ")"
+	{
+	  	mWriter.write(
+	       "        }\n"     
+		);
+		return retValue; 
+	}
+  
+}
+
+int elseStatement() throws Exception:   
+{
+  int retValue = 0;
+}    
+{
+  	<ELSE>
+	{
+	  	mWriter.write(
+	  	    "        else{\n"     
+		);
+	}
+
+	"("( < EOL > )+
+
+    retValue = statementDef()
+
+    ")"
+	{
+	  	mWriter.write(
+	       "        }\n"     
+		);
+		return retValue; 
+	}
+}
+
+int ifMapIdentifier1() throws Exception:   
+{
+	int retValue = 0;
+}    
+{
+	<IDENTIFIER1>
+	{
+	    mWriter.write(
+			"            Identifier ident1 = "
+		);
+	}
+	
+	retValue = ifMapIdentifiers()
+  	{
+	 	return retValue;
+  	}
+}
+
+int ifMapIdentifier2() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<IDENTIFIER2>
+	{
+	    mWriter.write(
+			"            Identifier ident2 = "
+		);
+	}
+	retValue = ifMapIdentifiers()
+  	{
+	 	return retValue;
+  	}
+}
+
+int ifMapMeta() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<METADATA>
+	{
+	    mWriter.write(
+			"            Document docMeta = "
+		);
+	}
+	retValue = ifMapMetas()
+  	{
+	 	return retValue;
+  	}
+}
+
+int ifMapMetaLifetime() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<METALIFETIME> (< METALIFETIMESESSION > | < METALIFETIMEFOREVER >)
+	{
+	    mWriter.write(
+			" MetadataLifetime." + token.image + ");\n"
+		);
+		return retValue;
+	}
+}
+
+int ifMapMetaDeleteString() throws Exception:
+{
+	int retValue = 0;
+}    
+{   	
+	<METADELETESTRING> <SEARCHSTRING> 
+	{
+	    mWriter.write(
+			"            String metaDeleteString = \"" + token.image.substring(1, token.image.length()-1) + "\";\n"
+		);
+		return retValue;
+	}
+}
+
+int ifMapIdentifiers() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	  (
+	    LOOKAHEAD(3) retValue = ifMapAr()
+	  | LOOKAHEAD(3) retValue = ifMapArPubPref()
+	  | LOOKAHEAD(3) retValue = ifMapArRand()
+	  | LOOKAHEAD(3) retValue = ifMapArRandUuid()
+	  | LOOKAHEAD(3) retValue = ifMapDevice()
+	  | LOOKAHEAD(3) retValue = ifMapDevicePubPref()
+	  | LOOKAHEAD(3) retValue = ifMapDeviceRandom()
+	  | LOOKAHEAD(3) retValue = ifMapDeviceRandomUuid()
+	  | LOOKAHEAD(3) retValue = ifMapIdentity()
+	  | LOOKAHEAD(3) retValue = ifMapIdentityEx()
+	  | LOOKAHEAD(3) retValue = ifMapIdentityOther()
+	  | LOOKAHEAD(3) retValue = ifMapIp4()
+	  | LOOKAHEAD(3) retValue = ifMapIp6()
+	  | LOOKAHEAD(3) retValue = ifMapMac()
+	  | LOOKAHEAD(3) retValue = ifMapIdentifierWithJavaCommand()
+	  
+	)
+	{
+	  return retValue;
+	}
+}
+
+int ifMapMetas() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	(
+	    LOOKAHEAD(3) retValue = ifMapCreate()
+	  | LOOKAHEAD(3) retValue = ifMapArDev()
+	  | LOOKAHEAD(3) retValue = ifMapArIp()
+	  | LOOKAHEAD(3) retValue = ifMapArMac()
+	  | LOOKAHEAD(3) retValue = ifMapAuthAs()
+	  | LOOKAHEAD(3) retValue = ifMapAuthBy()
+	  | LOOKAHEAD(3) retValue = ifMapCapability()
+	  | LOOKAHEAD(3) retValue = ifMapClientTime()
+	  | LOOKAHEAD(3) retValue = ifMapDevIp()
+	  | LOOKAHEAD(3) retValue = ifMapDevAttr()
+	  | LOOKAHEAD(3) retValue = ifMapDevChar()
+	  | LOOKAHEAD(3) retValue = ifMapDiscoBy()
+	  | LOOKAHEAD(3) retValue = ifMapEnforcementReport()
+	  | LOOKAHEAD(3) retValue = ifMapEvent()
+	  | LOOKAHEAD(3) retValue = ifMapIpMac()
+	  | LOOKAHEAD(3) retValue = ifMapLayer2Information()
+	  | LOOKAHEAD(3) retValue = ifMapRequestForInvestigation()
+	  | LOOKAHEAD(3) retValue = ifMapRole()
+	  | LOOKAHEAD(3) retValue = ifMapUnexpectedBehavior()
+	  | LOOKAHEAD(3) retValue = ifMapMetaWithJavaCommand()
+	  
+	)
+	{
+	  return retValue;
+	}
+}
+
+// IFMAP IDENTIFIER ============================================================================================
+
+
+int ifMapAr() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+		<AR>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createAr(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+	
+}
+
+int ifMapArPubPref() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	
+	<ARPUBPREF>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createArPubPrefixed(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+	
+}
+
+int ifMapArRand() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	<ARRAND>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createArRandom("
+	 	);
+	}
+	
+	("()" | {extension = true;} "(\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	" rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+	
+}
+
+int ifMapArRandUuid() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	<ARRANDUUID>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createArRandomUuid("
+	 	);
+	}
+	
+	("()" | {extension = true;} "(\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	" rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+
+	
+}
+
+int ifMapDevice() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<DEV>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createDev(rootNode.path( \"" + token.image + "\" ).getTextValue());\n"
+	 	);
+  	}
+	"\")"
+	{
+	  return retValue;
+	}
+}
+
+int ifMapDevicePubPref() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<DEVPUBPREF>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createDevPubPrefixed(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\""<JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+
+}
+
+int ifMapDeviceRandom() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<DEVRAND>"()"
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createDevRandom();\n"
+	 	);
+        return retValue;
+	}
+}
+
+int ifMapDeviceRandomUuid() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<DEVRANDUUID>"()"
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createDevRandomUuid();\n"
+	 	);
+	    return retValue;
+	}
+}
+
+int ifMapIdentity() throws Exception:
+{
+	int retValue = 0;
+	int type = 0;
+	boolean extension = false;
+}    
+{   	
+	<IDENTITY>"("
+	(	  {type = 1;} <AIKNAME>
+	| {type = 2;} <DISTINGUISHEDNAME>
+	| {type = 3;} <DNSNAME>
+	| {type = 4;} <EMAILADDRESS>
+	| {type = 5;} <HIPHIT>
+	| {type = 6;} <KERBEROSPRINCIPAL>
+	| {type = 7;} <SIPURI>
+	| {type = 8;} <TELURI>
+	| {type = 9;} <USERNAME>
+	)
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createIdentity("
+	 	);
+
+		switch (type) {
+            case 1:
+            	mWriter.write(
+	 	  			"IdentityType.aikName"
+	 			);
+            	break;
+            case 2:
+            	mWriter.write(
+	 	  			"IdentityType.distinguishedName"
+	 			);
+            	break;
+            case 3:
+            	mWriter.write(
+	 	  			"IdentityType.dnsName"
+	 			);
+            	break;
+            case 4:
+            	mWriter.write(
+	 	  			"IdentityType.emailAddress"
+	 			);
+            	break;
+            case 5:
+            	mWriter.write(
+	 	  			"IdentityType.hipHit"
+	 			);
+            	break;
+            case 6:
+            	mWriter.write(
+	 	  			"IdentityType.kerberosPrincipal"
+	 			);
+            	break;
+            case 7:
+            	mWriter.write(
+	 	  			"IdentityType.sipUri"
+	 			);
+            	break;
+            case 8:
+            	mWriter.write(
+	 	  			"IdentityType.telUri"
+	 			);
+            	break;
+            case 9:
+            	mWriter.write(
+	 	  			"IdentityType.userName"
+	 			);
+            	break;
+            default: return -1;
+                     break;
+    	}
+	 	
+  	}
+
+  	",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}  	
+
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapIdentityEx() throws Exception:
+{
+	int retValue = 0;
+}    
+{   	
+	<IDENTITYEX>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createExtendedIdentity(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+
+int ifMapIdentityOther() throws Exception:
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	<IDENTITYOTHER>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createOtherIdentity(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}  
+
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+
+int ifMapIp4() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	<IP4>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createIp4(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapIp6() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	<IP6>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createIp6(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+  	
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapMac() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	<MAC>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"Identifiers.createMac(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+  	
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapIdentifierWithJavaCommand() throws Exception:
+{
+	int retValue = 0;
+	int type = 0;
+}
+{   	
+
+  (
+     {type = 1;} <AR>"("<SEARCHSTRING>
+  |  {type = 2;} <ARPUBPREF>"("<SEARCHSTRING>
+  |  {type = 3;} <ARRAND>"("<SEARCHSTRING>
+  |  {type = 4;} <ARRANDUUID>"("<SEARCHSTRING>
+  |  {type = 5;} <DEV>"("<SEARCHSTRING>
+  |  {type = 6;} <DEVPUBPREF>"("<SEARCHSTRING>
+  |  {type = 7;} <IDENTITY>"("<SEARCHSTRING>
+  |  {type = 8;} <IDENTITYOTHER>"("<SEARCHSTRING>
+  |  {type = 9;} <IDENTITYEX>"("<SEARCHSTRING>
+  | {type = 10;} <IP4>"("<SEARCHSTRING>
+  | {type = 11;} <IP6>"("<SEARCHSTRING>
+  | {type = 12;} <MAC>"("<SEARCHSTRING>
+  )
+  	{    
+		switch (type) {
+            case 1:
+            	mWriter.write(
+	 	  			"Identifiers.createAr("+ token.image.substring(1, token.image.length()-1)
+	 			);
+            	break;
+            case 2:
+                mWriter.write(
+	 	  			"Identifiers.createArPubPrefixed("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 3:
+                mWriter.write(
+	 	  			"Identifiers.createArRandom("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 4:
+                mWriter.write(
+	 	  			"Identifiers.createArRandomUuid("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 5:
+                mWriter.write(
+	 	  			"Identifiers.createDev("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 6:
+                mWriter.write(
+	 	  			"Identifiers.createDevPubPrefixed("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 7:
+                mWriter.write(
+	 	  			"Identifiers.createIdentity("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 8:
+                mWriter.write(
+	 	  			"Identifiers.createOtherIdentity("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 9:
+                mWriter.write(
+	 	  			"Identifiers.createExtendedIdentity("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 10:
+                mWriter.write(
+	 	  			"Identifiers.createIp4("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 11:
+                mWriter.write(
+	 	  			"Identifiers.createIp6("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 12:
+                mWriter.write(
+	 	  			"Identifiers.createMac("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            default: return -1;
+                     break;
+		}
+	}
+            
+	")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+// METADATA =======================================================================================================
+
+int ifMapCreate() throws Exception:
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{  	
+	<META_CREATE>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().create(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" (< METACARDINALITYSINGLE > | < METACARDINALITYMULTI >)
+  	{  	  
+  		mWriter.write(
+	 	  	", Cardinality." + token.image
+	 	);
+	}  
+
+	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	} 
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+} 
+
+int ifMapArDev() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_ARDEV>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createArDev();\n"
+	 	);
+	 	return retValue;
+  	}
+}
+
+int ifMapArIp() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_ARIP>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createArIp();\n"
+	 	);
+	 	return retValue;
+  	}
+}
+
+int ifMapArMac() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_ARMAC>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createArMac();\n"
+	 	);
+	 	return retValue;
+  	}
+}
+
+int ifMapAuthAs() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_AUTHAS>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createAuthAs();\n"
+	 	);
+	 	return retValue;
+  	}
+}
+
+int ifMapAuthBy() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_AUTHBY>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createAuthBy();\n"
+	 	);
+	 	return retValue;
+  	}
+}
+
+int ifMapCapability() throws Exception:
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{  	
+	<META_CAPABILITY>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createCapability(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+  	
+  	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+	
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapClientTime() throws Exception:
+{
+	int retValue = 0;
+}    
+{  	
+	<META_CLIENTTIME>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createClientTime(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+  	
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapDevAttr() throws Exception:
+{
+	int retValue = 0;
+}    
+{  	
+	<META_DEVATTR>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createDevAttr(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+  	
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapDevChar() throws Exception:
+{
+	int retValue = 0;
+}    
+{  	
+	<META_DEVCHAR>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createDevChar(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	} 
+  	
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapDevIp() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_DEVIP>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createDevIp();\n"
+	 	);
+	 	return retValue;
+  	}
+}
+
+int ifMapDiscoBy() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_DISCOBY>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createDiscoveredBy();\n"
+	 	);
+	 	return retValue;
+  	}
+}
+
+int ifMapEnforcementReport() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_ENFORCEMENT>"("(< METAENFORCEMENTACTIONBLOCK > | < METAENFORCEMENTACTIONOTHER > | < METAENFORCEMENTACTIONQUARANTINE >)
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createEnforcementReport(EnforcementAction." + token.image
+	 	);
+  	}
+
+  	",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapEvent() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_EVENT>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createEvent(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
+	 	);
+	}
+
+	"\"," (< METASIGNIFICANCECRITICAL > | < METASIGNIFICANCEIMPORTANT > | < METASIGNIFICANCEINFORMATIONAL >)
+  	{  	  
+  		mWriter.write(
+	 	  	", Significance." + token.image
+	 	);
+	}  
+
+	"," (< METAEVENTTYPEBEHAVIOR > | < METAEVENTTYPEBOTNET > | < METAEVENTTYPECVE > | < METAEVENTTYPEFLOWS > | < METAEVENTTYPEOTHER > | < METAEVENTTYPEP2P > | < METAEVENTTYPEPOLICY > | < METAEVENTTYPEWORM >)
+  	{  	  
+  		mWriter.write(
+	 	  	", EventType." + token.image
+	 	);
+	} 
+
+	",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+int ifMapIpMac() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	(	LOOKAHEAD(3) <META_IPMAC>"()"
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createIpMac();\n"
+	 	);
+	 	return retValue;
+  	}
+ 	|
+	LOOKAHEAD(3) <META_IPMAC>"(\"" <JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createIpMac(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+	
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+  	
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+  	
+ 	)
+
+}
+
+int ifMapLayer2Information() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+
+  	<META_LAYER2>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createLayer2Information(Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
+	 	);
+	}
+	
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+	
+}
+
+
+int ifMapRequestForInvestigation() throws Exception:   
+{
+	int retValue = 0;
+}    
+{   	
+	<META_INVESTIGATION>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createRequestForInvestigation(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+  	
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+
+int ifMapRole() throws Exception:   
+{
+	int retValue = 0;
+	boolean extension = false;
+}    
+{   	
+	<META_ROLE>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createRole(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	{
+	  if(!extension){
+	    mWriter.write(
+	 	  	");\n"
+	 	);
+	 	return retValue;
+	  }else{
+	    mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	  }	  
+	}
+  	
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+
+int ifMapUnexpectedBehavior() throws Exception:   
+{
+	int retValue = 0;
+}    	
+{   	
+
+  	<META_UNEXPECTEDBEHAVIOR>"(\""<JAVANAME>
+  	{
+	 	mWriter.write(
+	 	  	"getMetadataFactory().createUnexpectedBehavior(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+  	}
+
+  	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
+	 	);
+	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
+	 	);
+	}
+
+	"\"," (< METASIGNIFICANCECRITICAL > | < METASIGNIFICANCEIMPORTANT > | < METASIGNIFICANCEINFORMATIONAL >)
+  	{  	  
+  		mWriter.write(
+	 	  	", Significance." + token.image
+	 	);
+	}  
+	
+  	",\"" <JAVANAME>
+  	{  	  
+  		mWriter.write(
+	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	);
+	}
+
+  	"\")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+	
+}
+
+
+
+int ifMapMetaWithJavaCommand() throws Exception:
+{
+	int retValue = 0;
+	int type = 0;
+}
+{   	
+
+  (   
+     {type = 1;} <META_CREATE>"("<SEARCHSTRING>
+  |  {type = 2;} <META_CAPABILITY>"("<SEARCHSTRING>
+  |  {type = 3;} <META_CLIENTTIME>"("<SEARCHSTRING>
+  |  {type = 4;} <META_DEVATTR>"("<SEARCHSTRING>
+  |  {type = 5;} <META_DEVCHAR>"("<SEARCHSTRING>
+  |  {type = 6;} <META_ENFORCEMENT>"("<SEARCHSTRING>
+  |  {type = 7;} <META_EVENT>"("<SEARCHSTRING>
+  |  {type = 8;} <META_IPMAC>"("<SEARCHSTRING>
+  |  {type = 9;} <META_LAYER2>"("<SEARCHSTRING>
+  | {type = 10;} <META_LOCATION>"("<SEARCHSTRING>
+  | {type = 11;} <META_INVESTIGATION>"("<SEARCHSTRING>
+  | {type = 12;} <META_ROLE>"("<SEARCHSTRING>
+  | {type = 13;} <META_UNEXPECTEDBEHAVIOR>"("<SEARCHSTRING>
+  | {type = 14;} <META_WLANINFORMATION>"("<SEARCHSTRING>
+  )
+  	{
+    
+		switch (type) {
+            case 1:
+            	mWriter.write(
+	 	  			"getMetadataFactory().create("+ token.image.substring(1, token.image.length()-1)
+	 			);
+            	break;
+            case 2:
+                mWriter.write(
+	 	  			"getMetadataFactory().createCapability("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 3:
+                mWriter.write(
+	 	  			"getMetadataFactory().createClientTime("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 4:
+                mWriter.write(
+	 	  			"getMetadataFactory().createDevAttr("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 5:
+                mWriter.write(
+	 	  			"getMetadataFactory().createDevChar("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 6:
+                mWriter.write(
+	 	  			"getMetadataFactory().createEnforcementReport("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 7:
+                mWriter.write(
+	 	  			"getMetadataFactory().createEvent("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 8:
+                mWriter.write(
+	 	  			"getMetadataFactory().createIpMac("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 9:
+                mWriter.write(
+	 	  			"getMetadataFactory().createLayer2Information("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+		    case 10:
+                mWriter.write(
+	 	  			"getMetadataFactory().createLocation("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 11:
+                mWriter.write(
+	 	  			"getMetadataFactory().createRequestForInvestigation("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 12:
+                mWriter.write(
+	 	  			"getMetadataFactory().createRole("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            case 13:
+                mWriter.write(
+	 	  			"getMetadataFactory().createUnexpectedBehavior("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+			case 14:
+                mWriter.write(
+	 	  			"getMetadataFactory().createWlanInformation("+ token.image.substring(1, token.image.length()-1)
+	 			);
+				break;
+            default: return -1;
+                     break;
+		}
+	}
+            
+	")"
+	{
+	  mWriter.write(
+	 	  	");\n"
+	 	);
+	  return retValue;
+	}
+}
+
+
+

@@ -54,10 +54,10 @@ import de.hshannover.f4.trust.ifmapj.exception.IfmapException;
 import de.hshannover.f4.trust.ifmapj.exception.InitializationException;
 import de.hshannover.f4.trust.ironcommon.properties.PropertyException;
 import de.hshannover.f4.trust.irongenlog.publisher.StrategyChainBuilder;
+import de.hshannover.f4.trust.irongenlog.publisher.StrategyDomParserBuilder;
 import de.hshannover.f4.trust.irongenlog.utilities.IfMap;
 import de.hshannover.f4.trust.irongenlog.utilities.SsrcKeepaliveThread;
 import de.hshannover.f4.trust.irongenlog.websocketconnector.WebSocketConnector;
-
 
 /**
  * This class starts the application It creates the threads for publishing,
@@ -92,6 +92,10 @@ public final class Irongenlog {
 
 		try {
 			Configuration.init();
+
+			StrategyDomParserBuilder.init(Configuration.getRequestStrategiesClassnameMap(),
+					Configuration.strategiesPackagePath());
+
 			StrategyChainBuilder.init(Configuration.getRequestStrategiesClassnameMap(),
 					Configuration.strategiesPackagePath());
 
@@ -117,7 +121,7 @@ public final class Irongenlog {
 				}
 			} catch (URISyntaxException e) {
 				LOGGER.severe("WebSocket Uri Syntax not correct... System can not start!");
-			} 
+			}
 
 		} catch (InitializationException e1) {
 			LOGGER.severe("Error setting up the ssrc channel... System can not start!");

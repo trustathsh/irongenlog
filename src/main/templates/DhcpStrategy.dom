@@ -1,0 +1,63 @@
+
+package: de.hshannover.f4.trust.irongenlog.publisher.strategies 
+
+class: DhcpStrategy
+
+	publishLogData:
+
+		if: "strategy" == "dnsmasq-dhcp" (
+			
+			if: "METHOD" == "DHCPDISCOVER" (
+				call: publishDhcpDiscover
+			) elseif: "METHOD" == "DHCPREQUEST" (
+				call: publishDhcpRequest
+			) elseif: "METHOD" == "DHCPACK" (
+				call: publishDhcpAck
+			)
+		)	
+
+	method: publishDhcpDiscover
+
+		update:
+			identifier1 = mac("MAC")			
+			identifier2 = dev("DHCPSERVERNAME")
+			meta = discoBy()
+			lifetime = session
+
+	method: publishDhcpRequest
+		
+		update:
+			identifier1 = mac("MAC")			
+			identifier2 = ar("IP")
+			meta = arMac()
+			lifetime = session
+			
+		delete:
+			identifier1 = mac("MAC")					
+			identifier2 = ip4("IP")				
+			deleteString = 'meta:ip-mac[@ifmap-publisher-id='" + ssrc.getPublisherId() + "']'
+			
+		update:
+			identifier1 = mac("MAC")			
+			identifier2 = ip4("IP")
+			meta = ipMac('null, null, rootNode.path("DHCPSERVERNAME").getTextValue()')
+			lifetime = session
+			
+		update:
+			identifier1 = ip4("IP")			
+			identifier2 = ar("IP")
+			meta = arIp()
+			lifetime = session
+					
+
+			
+	method: publishDhcpAck
+		
+		update:
+			identifier1 = ar("IP")			
+			identifier2 = dev("DHCPSERVERNAME")
+			meta = authBy()
+			lifetime = session
+
+			
+			
