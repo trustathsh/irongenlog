@@ -66,6 +66,9 @@
 				<configuration>
 					<propertyExpansion>headerfile=${project.basedir}/src/license/dummy/Dummy.java</propertyExpansion>
 					<configLocation>https://raw.githubusercontent.com/trustathsh/ironcommon/master/src/main/documents/trustAtHsHCheckstylePolicy.xml</configLocation>
+					<excludes>src/main/java/de/hshannover/f4/trust/irongenlog/publisher/strategies/</excludes>
+					<excludes>src/main/jjtree/</excludes>
+					<excludes>target/</excludes>
 				</configuration>
 			</plugin>
 

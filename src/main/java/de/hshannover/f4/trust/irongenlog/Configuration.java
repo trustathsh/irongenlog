@@ -21,7 +21,7 @@
  * This file is part of irongenlog, version 0.0.1, implemented by the Trust@HsH
  * research group at the Hochschule Hannover.
  * %%
- * Copyright (C) 2013 - 2014 Trust@HsH
+ * Copyright (C) 2014 - 2015 Trust@HsH
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public final class Configuration {
 	private static final String IFMAP_URL_CERT = "ifmap.server.url.cert";
 	private static final String IFMAP_BASIC_USER = "ifmap.server.auth.user";
 	private static final String IFMAP_BASIC_PASSWORD = "ifmap.server.auth.password";
-	
+
 	private static final String IFMAP_KEEPALIVE = "ifmap.client.keepalive";
 	private static final String KEYSTORE_PATH = "ifmap.client.keystore.path";
 	private static final String KEYSTORE_PASSWORD = "ifmap.client.keystore.password";
@@ -96,11 +96,12 @@ public final class Configuration {
 	/**
 	 * Loads the configuration file. Every time this method is called the file
 	 * is read again.
-	 * @throws PropertyException 
-	 * 			   To signalise a failure while opening to calling classes
+	 * 
+	 * @throws PropertyException
+	 *             To signalise a failure while opening to calling classes
 	 * 
 	 */
-	public static void init() throws PropertyException{
+	public static void init() throws PropertyException {
 		LOGGER.info("reading " + CONFIG_FILE + " ...");
 		String config = Configuration.class.getResource(CONFIG_FILE).getPath();
 		mProperties = new Properties(config);
@@ -110,14 +111,14 @@ public final class Configuration {
 	 * Getter for the request Strategies classname map.
 	 * 
 	 * @return the set of classnames for request strategies
-	 * @throws PropertyException 
+	 * @throws PropertyException
 	 */
 	@SuppressWarnings("unchecked")
 	public static Set<Entry<String, Object>> getRequestStrategiesClassnameMap() throws PropertyException {
 
 		return ((Map<String, Object>) mProperties.getValue(STRATEGIES_CLASSNAMES_FILENAME)).entrySet();
 	}
-	
+
 	/**
 	 * Getter for the ifmapAuthMethod property.
 	 * 
@@ -223,10 +224,10 @@ public final class Configuration {
 	 * Getter for the strategies package path property.
 	 * 
 	 * @return property path
-	 * @throws PropertyException 
+	 * @throws PropertyException
 	 */
 	public static String strategiesPackagePath() throws PropertyException {
 		return mProperties.getString(STRATEGIES_PACKAGE_PATH);
-	}	
+	}
 
 }

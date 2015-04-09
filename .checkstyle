@@ -9,5 +9,10 @@
   <fileset name="all" enabled="true" check-config-name="trustAtHsHCheckstyle" local="true">
     <file-match-pattern match-pattern="." include-pattern="true"/>
   </fileset>
+  <filter name="FilesFromPackage" enabled="true">
+    <filter-data value="src/main/java/de/hshannover/f4/trust/irongenlog/publisher/strategies/"/>
+    <filter-data value="src/main/jjtree/"/>
+    <filter-data value="target/"/>
+  </filter>
 </fileset-config>
 
