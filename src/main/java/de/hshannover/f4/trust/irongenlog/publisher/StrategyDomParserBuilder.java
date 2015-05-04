@@ -55,7 +55,7 @@ import de.hshannover.f4.trust.irongenlog.strategyparser.IfMapStrategyParser;
  * 
  */
 
-public class StrategyDomParserBuilder {
+public final class StrategyDomParserBuilder {
 
 	private static final Logger LOGGER = Logger.getLogger(StrategyDomParserBuilder.class.getName());
 
@@ -75,21 +75,21 @@ public class StrategyDomParserBuilder {
 	public static void init(Set<Entry<String, Object>> strategieNames, String packagePath) {
 
 		LOGGER.info("looking for dom classes in folder src/main/templates ");
-		
+
 		IfMapStrategyParser parser;
 		Iterator<Entry<String, Object>> iteClassnames = strategieNames.iterator();
 		String packageSourcePath = packagePath.replace(".", "/");
-		
+
 		while (iteClassnames.hasNext()) {
 
 			Entry<String, Object> classname = iteClassnames.next();
 			LOGGER.info("found dom classString " + classname.getKey().toString());
 
 			if (classname.getValue().toString().equals("enabled")) {
-				
+
 				try {
 					parser = IfMapStrategyParser.getNewParser("/" + classname.getKey().toString() + ".dom",
-							"src/main/java/"+ packageSourcePath + classname.getKey().toString()+ ".java");
+							"src/main/java/" + packageSourcePath + classname.getKey().toString() + ".java");
 					parser.parse();
 				} catch (Exception e) {
 					LOGGER.warning("Parser couldnt parse the file correctly: " + e.getMessage());

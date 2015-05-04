@@ -39,8 +39,10 @@
 package de.hshannover.f4.trust.irongenlog.publisher.strategies;
 
 import java.util.logging.Logger;
+
 import org.codehaus.jackson.JsonNode;
 import org.w3c.dom.Document;
+
 import de.hshannover.f4.trust.ifmapj.channel.*;
 import de.hshannover.f4.trust.ifmapj.exception.*;
 import de.hshannover.f4.trust.ifmapj.identifier.*;
@@ -48,6 +50,7 @@ import de.hshannover.f4.trust.ifmapj.messages.*;
 import de.hshannover.f4.trust.ifmapj.metadata.*;
 import de.hshannover.f4.trust.irongenlog.publisher.PublishLogDataStrategy;
 
+@SuppressWarnings("unused")
 public class DhcpStrategy extends PublishLogDataStrategy {
 
     private static final Logger LOGGER = Logger.getLogger(DhcpStrategy.class.getName());

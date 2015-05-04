@@ -111,7 +111,7 @@ public final class Configuration {
 	 * Getter for the request Strategies classname map.
 	 * 
 	 * @return the set of classnames for request strategies
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	@SuppressWarnings("unchecked")
 	public static Set<Entry<String, Object>> getRequestStrategiesClassnameMap() throws PropertyException {
@@ -123,7 +123,7 @@ public final class Configuration {
 	 * Getter for the ifmapAuthMethod property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String ifmapAuthMethod() throws PropertyException {
 		return mProperties.getString(IFMAP_AUTH_METHOD);
@@ -134,7 +134,7 @@ public final class Configuration {
 	 * Getter for the ifmapUrlBasic property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String ifmapUrlBasic() throws PropertyException {
 		return mProperties.getString(IFMAP_URL_BASIC);
@@ -144,7 +144,7 @@ public final class Configuration {
 	 * Getter for the ifmapUrlCert property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String ifmapUrlCert() throws PropertyException {
 		return mProperties.getString(IFMAP_URL_CERT);
@@ -154,7 +154,7 @@ public final class Configuration {
 	 * Getter for the ifmapBasicUser property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String ifmapBasicUser() throws PropertyException {
 		return mProperties.getString(IFMAP_BASIC_USER);
@@ -164,7 +164,7 @@ public final class Configuration {
 	 * Getter for the ifmapBasicPassword property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String ifmapBasicPassword() throws PropertyException {
 		return mProperties.getString(IFMAP_BASIC_PASSWORD);
@@ -174,7 +174,7 @@ public final class Configuration {
 	 * Getter for the keyStorePath property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String keyStorePath() throws PropertyException {
 		return mProperties.getString(KEYSTORE_PATH);
@@ -184,7 +184,7 @@ public final class Configuration {
 	 * Getter for the keyStorePassword property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String keyStorePassword() throws PropertyException {
 		return mProperties.getString(KEYSTORE_PASSWORD);
@@ -194,7 +194,7 @@ public final class Configuration {
 	 * Getter for the openFlowControllerIP property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String websocketServerUrl() throws PropertyException {
 		return mProperties.getString(WEBSOCKET_SERVER_URL);
@@ -204,7 +204,7 @@ public final class Configuration {
 	 * Getter for the request strategies ClassnamePropertiesFilename property.
 	 * 
 	 * @return property string
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String irongenlogRequestStrategiesClassnamePropertiesFilename() throws PropertyException {
 		return mProperties.getString(STRATEGIES_CLASSNAMES_FILENAME);
@@ -214,7 +214,7 @@ public final class Configuration {
 	 * Getter for the ifmapKeepalive property.
 	 * 
 	 * @return property integer
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static int ifmapKeepalive() throws PropertyException {
 		return mProperties.getInt(IFMAP_KEEPALIVE);
@@ -224,7 +224,7 @@ public final class Configuration {
 	 * Getter for the strategies package path property.
 	 * 
 	 * @return property path
-	 * @throws PropertyException
+	 * @throws PropertyException what the name says
 	 */
 	public static String strategiesPackagePath() throws PropertyException {
 		return mProperties.getString(STRATEGIES_PACKAGE_PATH);
