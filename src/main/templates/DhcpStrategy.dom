@@ -35,7 +35,9 @@ class: DhcpStrategy
 		delete:
 			identifier1 = mac("MAC")					
 			identifier2 = ip4("IP")				
-			deleteString = 'meta:ip-mac[@ifmap-publisher-id='" + ssrc.getPublisherId() + "']'
+			deleteString = 'meta:ip-mac[@ifmap-publisher-id='" + ssrc.getPublisherId() + "']'		
+			nameSpacePref = stdPrefix
+			nameSpaceUri = stdUri
 			
 		update:
 			identifier1 = mac("MAC")			
@@ -58,6 +60,4 @@ class: DhcpStrategy
 			identifier2 = dev("DHCPSERVERNAME")
 			meta = authBy()
 			lifetime = session
-
-			
 			

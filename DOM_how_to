@@ -1,0 +1,200 @@
+
+This is a short reference to build new strategies with the genlog specific dom language.
+For a look, a solution could look like, see the DhcpStrategy.dom under the folder src/main/templates or the example in this document.
+
+
+
+The following Keywords cant be used in an other context as thought.
+The Parameter of the functions correspond to the ifmapj counterpart
+
+Java:
+
+"package:" 						to specify the package name of the class
+"class:" 						to specify the name of the class
+"method:" 						to specify the method name
+"call:" 						to specify the method to be called
+"if:" 
+"elseif:"
+"else:"
+
+
+Ifmap functions:
+
+"publishLogData:" 						a must have its the first method in your strategy
+"update:" 								to specify ifmap update request
+"delete:" 								to specify ifmap delete request
+"notify:"								to specify ifmap notify request
+"identifier1 = " 						to specify ifmap identifier 1
+"identifier2 = " 						to specify ifmap identifier 2
+"meta = " 								to specify ifmap meta data
+"lifetime = " 							to specify ifmap session lifetime
+"deleteString = " 						to specify ifmap delete action search string
+"nameSpacePref = " 						to specify ifmap metadata namespace prefix
+"nameSpaceUri = " 						to specify ifmap metadata namespace uri
+"addAttribute" ("p1","p2")				to add attributes in a hashmap of metadata create statement 
+"addLocation" ("p1","p2")				to add locations in a list of metadata LocationInformation statement 
+"addUnicastSecurity" ("p1","p2") 		to add unicastSecurity in a list of metadata wlanInformation statement
+"addManagementSecurity" ("p1","p2") 	to add ManagementSecurity in a list of metadata wlanInformation statement
+
+Identifiers:
+
+"ar" ("p1"[,"p2"]) 						to specify identifier AccessRequest
+"arPubPrefixed" ("p1","p2",["p3"])		to specify identifier AccessRequest
+"arRandom" (["p1"])						to specify identifier AccessRequest
+"arRandomUuid" (["p1"])					to specify identifier AccessRequest
+"dev" ("p1")		 					to specify identifier Device
+"devPubPrefixed" ("p1","p2")			to specify identifier Device
+"devRandom"	()							to specify identifier Device
+"devRandomUuid" ()						to specify identifier Device
+"identity" (identitytype,"p2",["p3"])	to specify identifier Identity
+"identityOther" ("p1","p2","p3",["p4"])	to specify identifier Identity
+"identityEx" ("p1")						to specify identifier Identity
+"ip4" ("p1"[,"p2"]) 					to specify identifier IpAdress v4
+"ip6" ("p1"[,"p2"]) 					to specify identifier IpAdress v6
+"mac" ("p1"[,"p2"]) 					to specify identifier MacAdress
+
+Identity types:
+
+"aikName" 						a predefined identity type
+"distinguishedName" 			a predefined identity type
+"dnsName" 						a predefined identity type
+"emailAddress" 					a predefined identity type
+"hipHit" 						a predefined identity type
+"kerberosPrincipal" 			a predefined identity type
+"sipUri" 						a predefined identity type
+"telUri" 						a predefined identity type
+"userName" 						a predefined identity type
+
+Metadata:
+
+"session" 												the session lifetime
+"forever" 												the session lifetime
+"stdPrefix" 											the predefined meta namespace prefix
+"stdUri" 												the predefined meta namespace prefix
+"create" ("p1","p2","p3",cardinality,["p5","p6"])		to specify metadata create you can use add atributes with 4params
+"arDev"	()												to specify metadata AccessRequest to Device
+"arIp" ()												to specify metadata AccessRequest to Ip
+"arMac"	()												to specify metadata AccessRequest to Mac
+"authAs" ()												to specify metadata Authenticated As
+"authBy" ()												to specify metadata Authenticated By
+"capability" ("p1"[,"p2"])								to specify metadata Capability
+"clientTime" ("p1")										to specify metadata ClientTime
+"devIp"	()												to specify metadata Device to Ip
+"devAttr" ("p1")										to specify metadata Device attributes
+"devChar" ("p1","p2","p3","p4","p5","p6","p7","p8")		to specify metadata Device characteristics
+"discoBy" ()											to specify metadata discovered by
+"enforcementReport" (enforcementaction,"p2","p3")		to specify metadata enforcement report
+"event" ("p1","p2","p3","p4","p5",significance,eventtype,"p8","p9","p10")	to specify metadata event
+"ipMac"	(["p1","p2","p3"])								to specify metadata ip to Mac
+"layer2Information"	("p1","p2","p3","p4")				to specify metadata layer 2 information
+"location"	("p1","p2")									to specify metadata location you have to use addlocations
+"requestForInvestigation" ("p1") 						to specify metadata request for Investigation
+"role"	("p1"[,"p2"])									to specify metadata role
+"unexpectedBehavior" ("p1","p2","p3","p4",significance,"p6")	to specify metadata 
+"wlanInformation" ("p1",wlantype,"p3")					to specify metadata wlaninformation you have to use addUnicastSecurity and addManagementSecurity
+
+Metadata types:
+
+"singleValue"					metadata cardinality singlevalue
+"multiValue"					metadata cardinality multivalue
+"block"							metadata enforcement action
+"other"							metadata enforcement action / wlan type
+"quarantine"					metadata enforcement action
+"critical"						metadata significance
+"important"						metadata significance
+"informational"					metadata significance
+"behavioralChange"				metadata event type
+"botnetInfection"				metadata event type
+"cve"							metadata event type
+"excessiveFlows"				metadata event type
+"otherEvent"					metadata event type
+"p2p"							metadata event type
+"policyViolation"				metadata event type
+"wormInfection"					metadata event type
+"open"							metadata wlan type
+"wep"							metadata wlan type
+"tkip"							metadata wlan type
+"ccmp"							metadata wlan type
+"bip"							metadata wlan type
+
+
+
+
+
+This is a example how a dom stategy could be written:
+
+Please Note!
+Everything you write in "" is code that will be interpreted as a keyword in the logstash json path to search for.
+Everything you write in '' is code that will be interpreted as native JAVA code. So you are able to code inject Java to make special complex statements 
+Everything you write without '' or "" are predefined keywords like singleValue or forever
+
+Every method internally has the parameters ssrc of Ifmap and the rootNode Object of the json string so you can handle with them in native java code statements
+
+package: de.hshannover.f4.trust.irongenlog.publisher.strategies 
+
+class: DhcpStrategy
+
+	publishLogData:
+
+		if: "strategy" == "dnsmasq-dhcp" (
+			
+			if: "METHOD" == "DHCPDISCOVER" (
+				call: publishDhcpDiscover
+			) elseif: "METHOD" == "DHCPREQUEST" (
+				call: publishDhcpRequest
+			) elseif: "METHOD" == "DHCPACK" (
+				call: publishDhcpAck
+			)
+		)	
+
+	method: publishDhcpDiscover
+
+		update:
+			identifier1 = mac("MAC")			
+			identifier2 = dev("DHCPSERVERNAME")
+			meta = discoBy()
+			lifetime = session
+
+	method: publishDhcpRequest
+		
+		update:
+			identifier1 = mac("MAC")			
+			identifier2 = ar("IP")
+			meta = arMac()
+			lifetime = session
+			
+		delete:
+			identifier1 = mac("MAC")					
+			identifier2 = ip4("IP")				
+			deleteString = 'meta:ip-mac[@ifmap-publisher-id='" + ssrc.getPublisherId() + "']'	
+			nameSpacePref = stdPrefix
+			nameSpaceUri = stdUri
+			
+		update:
+			identifier1 = mac("MAC")			
+			identifier2 = ip4("IP")
+			meta = ipMac('null, null, rootNode.path("DHCPSERVERNAME").getTextValue()')
+			lifetime = session
+			
+		update:
+			identifier1 = ip4("IP")			
+			identifier2 = ar("IP")
+			meta = arIp()
+			lifetime = session
+					
+
+			
+	method: publishDhcpAck
+		
+		update:
+			identifier1 = ar("IP")			
+			identifier2 = dev("DHCPSERVERNAME")
+			meta = authBy()
+			lifetime = session
+
+
+
+
+If this dont help enough you can also check the java docs of ifmapJ or the IfMapStrategyParser.jjt source code.
+Also the generated DhcpStrategy.java could be a help!
+

@@ -20,7 +20,6 @@ public class IfMapStrategyParser
         IfMapStrategyParser parser = null; 
 
         String inputPath = IfMapStrategyParser.class.getResource(inputFile).getPath();
-        System.out.println(inputPath);
         parser = new IfMapStrategyParser(new FileInputStream(inputPath));
 		File file = new File(outputPath);
 		parser.setWriter( new FileWriter(file ,false) );                  	      
@@ -61,7 +60,7 @@ TOKEN:
   | < ELSE: "else:">
 }
 
-/* IFMAP WORDS */
+/* IFMAP WORDS WITH FUNCTION */
 TOKEN:
 {
     < PUBLISHLOGDATA: "publishLogData:">
@@ -73,6 +72,12 @@ TOKEN:
   | < METADATA: "meta = " >
   | < METALIFETIME: "lifetime = " >
   | < METADELETESTRING: "deleteString = " >
+  | < METANAMESPACEPREF: "nameSpacePref = " >
+  | < METANAMESPACEURI: "nameSpaceUri = " >
+  | < ADDMETAATTR: "addAttribute" >
+  | < ADDLOCATION: "addLocation" >
+  | < ADDUNICASTSECURITY: "addUnicastSecurity" >
+  | < ADDUNIMANAGEMENTSECURITY: "addManagementSecurity" >
 }
 
 /* IFMAP IDENTIFIERS */
@@ -114,6 +119,8 @@ TOKEN:
 {
     < METALIFETIMESESSION: "session" >
   | < METALIFETIMEFOREVER: "forever" >
+  | < STDMETADATAPREFIX: "stdPrefix" >
+  | < STDMETADATANSURI: "stdUri" >
   | < META_CREATE: "create" >
   | < META_ARDEV: "arDev" >
   | < META_ARIP: "arIp" >
@@ -158,7 +165,11 @@ TOKEN:
   | < METAEVENTTYPEP2P: "p2p" >
   | < METAEVENTTYPEPOLICY: "policyViolation" >
   | < METAEVENTTYPEWORM: "wormInfection" >
-}
+  | < METAWLANTYPEOPEN: "open" >
+  | < METAWLANTYPEWEP: "wep" >
+  | < METAWLANTYPETKIP: "tkip" >
+  | < METAWLANTYPECCMP: "ccmp" >
+  | < METAWLANTYPEBIP: "bip" >}
 /* IDENTIFIERS */
 TOKEN:
 {
@@ -192,9 +203,13 @@ int root() throws Exception:
 	  		mWriter.write(
 		  		"package "+token.image+";\n" +
 		  		"\n"+
-				"import java.util.logging.Logger;\n"		+	
+				"import java.util.logging.Logger;\n"		+
+				"import java.util.HashMap;\n" +
+				"import java.util.List;\n" +
+				"import java.util.ArrayList;\n" +
 				"import org.codehaus.jackson.JsonNode;\n" +
 				"import org.w3c.dom.Document;\n" +
+				"import de.hshannover.f4.trust.ifmapj.binding.*;\n" +
 				"import de.hshannover.f4.trust.ifmapj.channel.*;\n" +
 				"import de.hshannover.f4.trust.ifmapj.exception.*;\n" +			
 				"import de.hshannover.f4.trust.ifmapj.identifier.*;\n" +		
@@ -393,9 +408,9 @@ int publishDelete() throws Exception:
 			  	"            PublishDelete publishDelete = Requests.createPublishDelete(ident1, ident2);\n"
 			);
 		}
-		
-	 	  
-	    mWriter.write(
+	}
+	( < EOL > )+ retValue = ifMapMetaNameSpace()
+	{	    mWriter.write(
 	      	"            ssrc.publish(Requests.createPublishReq(publishDelete));\n" +
 	 	  	"        } catch (IfmapErrorResult e) {\n" +
 			"            LOGGER.severe(\"Error publishing update data: \" + e);\n" +
@@ -406,7 +421,6 @@ int publishDelete() throws Exception:
 	    );
 	    return retValue;
 	}
-
 
 }
 
@@ -626,11 +640,11 @@ int ifMapMeta() throws Exception:
 }    
 {   	
 	<METADATA>
-	{
+	/*{
 	    mWriter.write(
 			"            Document docMeta = "
 		);
-	}
+	}*/
 	retValue = ifMapMetas()
   	{
 	 	return retValue;
@@ -664,6 +678,63 @@ int ifMapMetaDeleteString() throws Exception:
 		return retValue;
 	}
 }
+
+int ifMapMetaNameSpace() throws Exception:
+{
+	int retValue = 0;
+}    
+{   	
+	<METANAMESPACEPREF>
+	(	  	<SEARCHSTRING> 
+		{
+	    	mWriter.write(
+			"           publishDelete.addNamespaceDeclaration( " + token.image.substring(1, token.image.length()-1) + ", "
+			);
+		}
+		|
+		<JSONSTRINGNAME> 
+		{
+	    	mWriter.write(
+			"           publishDelete.addNamespaceDeclaration( rootNode.path( " + token.image + " ).getTextValue(), "
+			);
+		}
+		|
+		<STDMETADATAPREFIX>
+		{
+	    	mWriter.write(
+			"			publishDelete.addNamespaceDeclaration(IfmapStrings.STD_METADATA_PREFIX, "
+			);
+		}
+	)
+	
+	( < EOL > )+ <METANAMESPACEURI>
+	(
+	  	<SEARCHSTRING> 
+		{
+	    	mWriter.write(
+			token.image.substring(1, token.image.length()-1) + ");\n"
+			);
+		}
+		|
+		<JSONSTRINGNAME> 
+		{
+	    	mWriter.write(
+			"rootNode.path( " + token.image + " ).getTextValue() );\n"
+			);
+		}
+		|
+		<STDMETADATANSURI>
+		{
+	    	mWriter.write(
+			"IfmapStrings.STD_METADATA_NS_URI);\n"
+			);
+		}
+	)
+	{
+	  return retValue;	}
+	
+}
+
 
 int ifMapIdentifiers() throws Exception:   
 {
@@ -715,9 +786,11 @@ int ifMapMetas() throws Exception:
 	  | LOOKAHEAD(3) retValue = ifMapEvent()
 	  | LOOKAHEAD(3) retValue = ifMapIpMac()
 	  | LOOKAHEAD(3) retValue = ifMapLayer2Information()
+	  | LOOKAHEAD(3) retValue = ifMapLocation()
 	  | LOOKAHEAD(3) retValue = ifMapRequestForInvestigation()
 	  | LOOKAHEAD(3) retValue = ifMapRole()
 	  | LOOKAHEAD(3) retValue = ifMapUnexpectedBehavior()
+	  | LOOKAHEAD(3) retValue = ifMapWlanInformation()
 	  | LOOKAHEAD(3) retValue = ifMapMetaWithJavaCommand()
 	  
 	)
@@ -1347,43 +1420,56 @@ int ifMapCreate() throws Exception:
 {
 	int retValue = 0;
 	boolean extension = false;
+
+	String elementName;
+	String qualifiedName;
+	String uri;
+	String cardinality;
 }    
 {  	
 	<META_CREATE>"(\""<JAVANAME>
   	{
-	 	mWriter.write(
-	 	  	"getMetadataFactory().create(rootNode.path( \"" + token.image + "\" ).getTextValue()"
-	 	);
+		elementName = token.image;
   	}
 
   	"\",\"" <JAVANAME>
-  	{  	  
-  		mWriter.write(
-	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
-	 	);
+  	{
+  	  	qualifiedName = token.image; 
 	}
 
 	"\",\"" <JAVANAME>
-  	{  	  
-  		mWriter.write(
-	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
-	 	);
+  	{
+  	  	uri = token.image;
 	}
 	
-	"\",\"" (< METACARDINALITYSINGLE > | < METACARDINALITYMULTI >)
-  	{  	  
-  		mWriter.write(
-	 	  	", Cardinality." + token.image
-	 	);
+	"\"," (< METACARDINALITYSINGLE > | < METACARDINALITYMULTI >)
+  	{
+  	    cardinality = token.image;
 	}  
 
-	("\")" | {extension = true;} "\",\"" <JAVANAME> )
+	(")" | {extension = true;} "\",\"" <JAVANAME> )
 	{
 	  if(!extension){
-	    mWriter.write(
-	 	  	");\n"
-	 	);
-	 	return retValue;
+
+	   	retValue = ifMapAttributeHashmap();
+
+		mWriter.write(
+	   		"            Document docMeta = getMetadataFactory().create(rootNode.path( \"" + elementName + "\" ).getTextValue()" +
+	   		", rootNode.path( \"" + qualifiedName + "\" ).getTextValue()" +
+	   		", rootNode.path( \"" + uri + "\" ).getTextValue()" +
+	   		", Cardinality." + cardinality
+		);
+		
+	   	if (retValue == 1){
+	   	  	mWriter.write(
+		 	  	", attributes);\n"
+		 	);
+		 	return 0;	   	}else{		   	  
+		    mWriter.write(
+		 	  	");\n"
+		 	);
+		 	return retValue;
+		}
 	  }else{
 	    mWriter.write(
 	 	  	", rootNode.path( \"" + token.image + "\" ).getTextValue()"
@@ -1405,7 +1491,45 @@ int ifMapCreate() throws Exception:
 	 	);
 	  return retValue;
 	}
-} 
+}
+
+int ifMapAttributeHashmap() throws Exception:
+{
+	int retValue = 0;
+	boolean firsttime = true;
+}    
+{
+	( LOOKAHEAD(3) ( < EOL > )+ <ADDMETAATTR>"(\""<JAVANAME>
+	  	{
+	  	    if(firsttime){
+	  	     	mWriter.write(
+		 	  	"            HashMap<String, String> attributes = new HashMap<String, String>();\n"
+		 		);
+		 		firsttime = false;	  	    }
+		 	mWriter.write(
+		 	  	"            attributes.put(rootNode.path( \"" + token.image + "\" ).getTextValue(), "
+		 	);		 
+	  	}
+	
+	  	"\",\"" <JAVANAME>
+	  	{  	  
+	  		mWriter.write(
+		 	  	"rootNode.path( \"" + token.image + "\" ).getTextValue()"
+		 	);
+		}
+
+		"\")"
+		{
+		  	mWriter.write(
+		 	  	");\n"
+		  	);
+		}
+	)*
+	{
+	  if (!firsttime){
+	    return  1;	  }	  return  retValue;
+	}
+}
 
 int ifMapArDev() throws Exception:   
 {
@@ -1415,7 +1539,7 @@ int ifMapArDev() throws Exception:
 	<META_ARDEV>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createArDev();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createArDev();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1429,7 +1553,7 @@ int ifMapArIp() throws Exception:
 	<META_ARIP>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createArIp();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createArIp();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1443,7 +1567,7 @@ int ifMapArMac() throws Exception:
 	<META_ARMAC>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createArMac();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createArMac();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1457,7 +1581,7 @@ int ifMapAuthAs() throws Exception:
 	<META_AUTHAS>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createAuthAs();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createAuthAs();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1471,7 +1595,7 @@ int ifMapAuthBy() throws Exception:
 	<META_AUTHBY>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createAuthBy();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createAuthBy();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1486,7 +1610,7 @@ int ifMapCapability() throws Exception:
 	<META_CAPABILITY>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createCapability(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createCapability(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
   	
@@ -1521,7 +1645,7 @@ int ifMapClientTime() throws Exception:
 	<META_CLIENTTIME>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createClientTime(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createClientTime(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
   	
@@ -1542,7 +1666,7 @@ int ifMapDevAttr() throws Exception:
 	<META_DEVATTR>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createDevAttr(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createDevAttr(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
   	
@@ -1563,7 +1687,7 @@ int ifMapDevChar() throws Exception:
 	<META_DEVCHAR>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createDevChar(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createDevChar(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
 
@@ -1633,7 +1757,7 @@ int ifMapDevIp() throws Exception:
 	<META_DEVIP>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createDevIp();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createDevIp();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1647,7 +1771,7 @@ int ifMapDiscoBy() throws Exception:
 	<META_DISCOBY>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createDiscoveredBy();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createDiscoveredBy();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1661,7 +1785,7 @@ int ifMapEnforcementReport() throws Exception:
 	<META_ENFORCEMENT>"("(< METAENFORCEMENTACTIONBLOCK > | < METAENFORCEMENTACTIONOTHER > | < METAENFORCEMENTACTIONQUARANTINE >)
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createEnforcementReport(EnforcementAction." + token.image
+	 	  	"            Document docMeta = getMetadataFactory().createEnforcementReport(EnforcementAction." + token.image
 	 	);
   	}
 
@@ -1696,7 +1820,7 @@ int ifMapEvent() throws Exception:
 	<META_EVENT>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createEvent(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createEvent(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
 
@@ -1780,7 +1904,7 @@ int ifMapIpMac() throws Exception:
 	(	LOOKAHEAD(3) <META_IPMAC>"()"
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createIpMac();\n"
+	 	  	"            Document docMeta = getMetadataFactory().createIpMac();\n"
 	 	);
 	 	return retValue;
   	}
@@ -1788,7 +1912,7 @@ int ifMapIpMac() throws Exception:
 	LOOKAHEAD(3) <META_IPMAC>"(\"" <JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createIpMac(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createIpMac(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
 
@@ -1827,7 +1951,7 @@ int ifMapLayer2Information() throws Exception:
   	<META_LAYER2>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createLayer2Information(Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
+	 	  	"             Document docMeta = getMetadataFactory().createLayer2Information(Integer.parseInt(rootNode.path( \"" + token.image + "\" ).getTextValue())"
 	 	);
   	}
 
@@ -1862,6 +1986,63 @@ int ifMapLayer2Information() throws Exception:
 	
 }
 
+int ifMapLocation() throws Exception:   
+{
+	int retValue = 0;
+	boolean firsttime = true;
+	String discoTime;
+	String discoId;
+}    
+{	<META_LOCATION>"(\""<JAVANAME>
+  	{
+		discoTime = token.image;
+  	}
+
+	"\",\"" <JAVANAME>
+  	{  	  
+		discoId = token.image;
+	}
+
+	"\")"
+
+
+	( LOOKAHEAD(3) ( < EOL > )+ <ADDLOCATION>"(\""<JAVANAME>
+	  	{
+	  	    if(firsttime){
+	  	     	mWriter.write(
+		 	  	"            List<LocationInformation> locations = new ArrayList<LocationInformation>();\n"
+		 		);
+		 		firsttime = false;
+	  	    }
+		 	mWriter.write(
+		 	  	"            locations.add(new LocationInformation(rootNode.path( \"" + token.image + "\" ).getTextValue(), "
+		 	);		 
+	  	}
+	
+	  	"\",\"" <JAVANAME>
+	  	{  	  
+	  		mWriter.write(
+		 	  	"rootNode.path( \"" + token.image + "\" ).getTextValue()"
+		 	);
+		}
+
+		"\")"
+		{
+		  	mWriter.write(
+		 	  	"));\n"
+		  	);
+		}
+	)+
+
+  	{
+
+	  mWriter.write(
+	  "            Document docMeta = getMetadataFactory().createLocation(locations,rootNode.path( \"" + discoTime + "\" ).getTextValue(), rootNode.path( \"" + discoId + "\" ).getTextValue());\n"
+	  );
+	  return retValue;
+	}
+	
+}
 
 int ifMapRequestForInvestigation() throws Exception:   
 {
@@ -1871,7 +2052,7 @@ int ifMapRequestForInvestigation() throws Exception:
 	<META_INVESTIGATION>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createRequestForInvestigation(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createRequestForInvestigation(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
   	
@@ -1894,7 +2075,7 @@ int ifMapRole() throws Exception:
 	<META_ROLE>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createRole(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createRole(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
 
@@ -1931,7 +2112,7 @@ int ifMapUnexpectedBehavior() throws Exception:
   	<META_UNEXPECTEDBEHAVIOR>"(\""<JAVANAME>
   	{
 	 	mWriter.write(
-	 	  	"getMetadataFactory().createUnexpectedBehavior(rootNode.path( \"" + token.image + "\" ).getTextValue()"
+	 	  	"            Document docMeta = getMetadataFactory().createUnexpectedBehavior(rootNode.path( \"" + token.image + "\" ).getTextValue()"
 	 	);
   	}
 
@@ -1981,6 +2162,101 @@ int ifMapUnexpectedBehavior() throws Exception:
 }
 
 
+int ifMapWlanInformation() throws Exception:   
+{
+	int retValue = 0;
+	boolean firsttime1 = true;
+	boolean firsttime2 = true;
+	String wlanGroupType;
+	String wlanGroupOtherType;
+	String wlanssid;
+}    	
+{	<META_WLANINFORMATION>"(\"" <JAVANAME>
+  	{
+  	  	wlanssid = token.image;
+  	}
+
+	"\","(<METAWLANTYPEOPEN> | <METAWLANTYPEWEP> | <METAWLANTYPETKIP> | <METAWLANTYPECCMP>| <METAWLANTYPEBIP> | <METAENFORCEMENTACTIONOTHER>)
+  	{
+  	    wlanGroupType = token.image;	  
+		
+	}
+
+	",\""<JAVANAME>
+  	{  	  
+		wlanGroupOtherType = token.image;
+	}
+
+	"\")"
+
+	( LOOKAHEAD(3) ( < EOL > )+ <ADDUNICASTSECURITY>"("(<METAWLANTYPEOPEN> | <METAWLANTYPEWEP> | <METAWLANTYPETKIP> | <METAWLANTYPECCMP>| <METAWLANTYPEBIP>| <METAENFORCEMENTACTIONOTHER>)
+	  	{
+	  	    if(firsttime1){
+	  	     	mWriter.write(
+		 	  	"            List<WlanSecurityType> ssidUnicastSecurity = new ArrayList<WlanSecurityType>();\n"
+		 		);
+		 		firsttime1 = false;
+	  	    }
+		 	mWriter.write(
+		 	  	"            ssidUnicastSecurity.add(new WlanSecurityType(WlanSecurityEnum." + token.image + ", "
+		 	);		 
+	  	}
+	
+	  	",\"" <JAVANAME>
+	  	{  	  
+	  		mWriter.write(
+		 	  	"rootNode.path( \"" + token.image + "\" ).getTextValue()"
+		 	);
+		}
+
+		"\")"
+		{
+		  	mWriter.write(
+		 	  	"));\n"
+		  	);
+		}
+	)+
+
+	( LOOKAHEAD(3) ( < EOL > )+ <ADDUNIMANAGEMENTSECURITY>"("(<METAWLANTYPEOPEN> | <METAWLANTYPEWEP> | <METAWLANTYPETKIP> | <METAWLANTYPECCMP> | <METAWLANTYPEBIP>| <METAENFORCEMENTACTIONOTHER>)
+	  	{
+	  	    if(firsttime2){
+	  	     	mWriter.write(
+		 	  	"            List<WlanSecurityType> ssidManagementSecurity = new ArrayList<WlanSecurityType>();\n"
+		 		);
+		 		firsttime2 = false;
+	  	    }
+		 	mWriter.write(
+		 	  	"            ssidManagementSecurity.add(new WlanSecurityType(WlanSecurityEnum." + token.image + ", "
+		 	);		 
+	  	}
+	
+	  	",\"" <JAVANAME>
+	  	{  	  
+	  		mWriter.write(
+		 	  	"rootNode.path( \"" + token.image + "\" ).getTextValue()"
+		 	);
+		}
+
+		"\")"
+		{
+		  	mWriter.write(
+		 	  	"));\n"
+		  	);
+		}
+	)+
+	
+
+  	{
+
+	  mWriter.write(
+	  "            Document docMeta = getMetadataFactory().createWlanInformation(rootNode.path( \"" + wlanssid + "\" ).getTextValue(),  ssidUnicastSecurity  , new WlanSecurityType(WlanSecurityEnum." + wlanGroupType + ", rootNode.path( \"" + wlanGroupOtherType + "\" ).getTextValue()) , ssidManagementSecurity);\n"
+	  );
+	  return retValue;
+	}
+
+	
+}
+
 
 int ifMapMetaWithJavaCommand() throws Exception:
 {
@@ -2010,72 +2286,72 @@ int ifMapMetaWithJavaCommand() throws Exception:
 		switch (type) {
             case 1:
             	mWriter.write(
-	 	  			"getMetadataFactory().create("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().create("+ token.image.substring(1, token.image.length()-1)
 	 			);
             	break;
             case 2:
                 mWriter.write(
-	 	  			"getMetadataFactory().createCapability("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createCapability("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 3:
                 mWriter.write(
-	 	  			"getMetadataFactory().createClientTime("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createClientTime("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 4:
                 mWriter.write(
-	 	  			"getMetadataFactory().createDevAttr("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createDevAttr("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 5:
                 mWriter.write(
-	 	  			"getMetadataFactory().createDevChar("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createDevChar("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 6:
                 mWriter.write(
-	 	  			"getMetadataFactory().createEnforcementReport("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createEnforcementReport("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 7:
                 mWriter.write(
-	 	  			"getMetadataFactory().createEvent("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createEvent("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 8:
                 mWriter.write(
-	 	  			"getMetadataFactory().createIpMac("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createIpMac("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 9:
                 mWriter.write(
-	 	  			"getMetadataFactory().createLayer2Information("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createLayer2Information("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
 		    case 10:
                 mWriter.write(
-	 	  			"getMetadataFactory().createLocation("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createLocation("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 11:
                 mWriter.write(
-	 	  			"getMetadataFactory().createRequestForInvestigation("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createRequestForInvestigation("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 12:
                 mWriter.write(
-	 	  			"getMetadataFactory().createRole("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createRole("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             case 13:
                 mWriter.write(
-	 	  			"getMetadataFactory().createUnexpectedBehavior("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createUnexpectedBehavior("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
 			case 14:
                 mWriter.write(
-	 	  			"getMetadataFactory().createWlanInformation("+ token.image.substring(1, token.image.length()-1)
+	 	  			"            Document docMeta = getMetadataFactory().createWlanInformation("+ token.image.substring(1, token.image.length()-1)
 	 			);
 				break;
             default: return -1;

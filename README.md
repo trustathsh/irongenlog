@@ -51,13 +51,13 @@ If you want to use irongenlog with irond the keystores of both are configured
 with ready-to-use testing certificates.
 
 The remaining configuration parameters can be done through the
-`irongenlog.properties` file in the irongenlog package.
+`irongenlog.yml` file in the irongenlog package.
 In general you have to specify:
 
 * the logstash server websocket URL,
 * the MAPS URL and credentials.
 
-Have a look at the comments in `irongenlog.properties`
+Have a look at the comments in `irongenlog.yml`
 
 Secondly you have to setup logstash:
 
@@ -124,6 +124,10 @@ shipper config:
 		}
 	}
 
+After you have setuped logstash you can define your own publishing strategie. 
+For this task visit the `DOM_how_to` file!
+This IRON client will be shipped with the DNSMASK DHCP example strategy, by default. 
+
 
 Building
 ========
@@ -151,13 +155,13 @@ If you have any questions, problems or comments, please contact
 
 LICENSE
 =======
-ironflgenlog is licensed under the [Apache License, Version 2.0] [4].
+irongenlog is licensed under the [Apache License, Version 2.0] [4].
 
 
 Note
 ====
 
-ironfenlog is an experimental prototype and is not suitable for actual use.
+irongenlog is an experimental prototype and is not suitable for actual use.
 
 Feel free to fork/contribute.
 
