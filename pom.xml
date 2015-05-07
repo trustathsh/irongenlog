@@ -79,7 +79,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>de.hshannover.f4.trust.irongenlog.Genlog</mainClass>
+							<mainClass>de.hshannover.f4.trust.irongenlog.Irongenlog</mainClass>
 							<addClasspath>true</addClasspath>
 						</manifest>
 						<manifestEntries>
