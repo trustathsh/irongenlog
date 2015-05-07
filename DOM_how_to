@@ -20,102 +20,102 @@ Java:
 
 Ifmap functions:
 
-"publishLogData:" 						a must have its the first method in your strategy
-"update:" 								to specify ifmap update request
-"delete:" 								to specify ifmap delete request
-"notify:"								to specify ifmap notify request
-"identifier1 = " 						to specify ifmap identifier 1
-"identifier2 = " 						to specify ifmap identifier 2
-"meta = " 								to specify ifmap meta data
-"lifetime = " 							to specify ifmap session lifetime
-"deleteString = " 						to specify ifmap delete action search string
-"nameSpacePref = " 						to specify ifmap metadata namespace prefix
-"nameSpaceUri = " 						to specify ifmap metadata namespace uri
-"addAttribute" ("p1","p2")				to add attributes in a hashmap of metadata create statement 
-"addLocation" ("p1","p2")				to add locations in a list of metadata LocationInformation statement 
-"addUnicastSecurity" ("p1","p2") 		to add unicastSecurity in a list of metadata wlanInformation statement
-"addManagementSecurity" ("p1","p2") 	to add ManagementSecurity in a list of metadata wlanInformation statement
+"publishLogData:" 					a must have its the first method in your strategy
+"update:" 						to specify ifmap update request
+"delete:" 						to specify ifmap delete request
+"notify:"						to specify ifmap notify request
+"identifier1 = " 					to specify ifmap identifier 1
+"identifier2 = " 					to specify ifmap identifier 2
+"meta = " 						to specify ifmap meta data
+"lifetime = " 						to specify ifmap session lifetime
+"deleteString = " 					to specify ifmap delete action search string
+"nameSpacePref = " 					to specify ifmap metadata namespace prefix
+"nameSpaceUri = " 					to specify ifmap metadata namespace uri
+"addAttribute("attrName","attrValue")"				to add attributes in a hashmap of metadata create statement 
+"addLocation("type","value")"				to add locations in a list of metadata LocationInformation statement 
+"addUnicastSecurity(wlantype,"otherTypeDefinition")" 	to add unicastSecurity in a list of metadata wlanInformation statement
+"addManagementSecurity(wlantype,"otherTypeDefinition")"	to add ManagementSecurity in a list of metadata wlanInformation statement
 
 Identifiers:
 
-"ar" ("p1"[,"p2"]) 						to specify identifier AccessRequest
-"arPubPrefixed" ("p1","p2",["p3"])		to specify identifier AccessRequest
-"arRandom" (["p1"])						to specify identifier AccessRequest
-"arRandomUuid" (["p1"])					to specify identifier AccessRequest
-"dev" ("p1")		 					to specify identifier Device
-"devPubPrefixed" ("p1","p2")			to specify identifier Device
-"devRandom"	()							to specify identifier Device
-"devRandomUuid" ()						to specify identifier Device
-"identity" (identitytype,"p2",["p3"])	to specify identifier Identity
-"identityOther" ("p1","p2","p3",["p4"])	to specify identifier Identity
-"identityEx" ("p1")						to specify identifier Identity
-"ip4" ("p1"[,"p2"]) 					to specify identifier IpAdress v4
-"ip6" ("p1"[,"p2"]) 					to specify identifier IpAdress v6
-"mac" ("p1"[,"p2"]) 					to specify identifier MacAdress
+"ar("name"[,"admDom"])" 					to specify identifier AccessRequest
+"arPubPrefixed("name","pubId",["admDom"])"			to specify identifier AccessRequest
+"arRandom(["admDom"])"						to specify identifier AccessRequest
+"arRandomUuid(["admDom"])"					to specify identifier AccessRequest
+"dev("name")"		 					to specify identifier Device
+"devPubPrefixed("name","pubId")"				to specify identifier Device
+"devRandom()"							to specify identifier Device
+"devRandomUuid()"						to specify identifier Device
+"identity(identitytype,"name",["admDom"])"			to specify identifier Identity
+"identityOther("name","admDom","otherTypeDef",["vendorId"])"	to specify identifier Identity
+"identityEx("extendedIdentifier")"				to specify identifier Identity
+"ip4("value"[,"admDom"])" 					to specify identifier IpAdress v4
+"ip6("value"[,"admDom"])" 					to specify identifier IpAdress v6
+"mac("value"[,"admDom"])" 					to specify identifier MacAdress
 
 Identity types:
 
 "aikName" 						a predefined identity type
-"distinguishedName" 			a predefined identity type
+"distinguishedName" 					a predefined identity type
 "dnsName" 						a predefined identity type
-"emailAddress" 					a predefined identity type
+"emailAddress" 						a predefined identity type
 "hipHit" 						a predefined identity type
-"kerberosPrincipal" 			a predefined identity type
+"kerberosPrincipal" 					a predefined identity type
 "sipUri" 						a predefined identity type
 "telUri" 						a predefined identity type
 "userName" 						a predefined identity type
 
 Metadata:
 
-"session" 												the session lifetime
-"forever" 												the session lifetime
-"stdPrefix" 											the predefined meta namespace prefix
-"stdUri" 												the predefined meta namespace prefix
-"create" ("p1","p2","p3",cardinality,["p5","p6"])		to specify metadata create you can use add atributes with 4params
-"arDev"	()												to specify metadata AccessRequest to Device
-"arIp" ()												to specify metadata AccessRequest to Ip
-"arMac"	()												to specify metadata AccessRequest to Mac
-"authAs" ()												to specify metadata Authenticated As
-"authBy" ()												to specify metadata Authenticated By
-"capability" ("p1"[,"p2"])								to specify metadata Capability
-"clientTime" ("p1")										to specify metadata ClientTime
-"devIp"	()												to specify metadata Device to Ip
-"devAttr" ("p1")										to specify metadata Device attributes
-"devChar" ("p1","p2","p3","p4","p5","p6","p7","p8")		to specify metadata Device characteristics
-"discoBy" ()											to specify metadata discovered by
-"enforcementReport" (enforcementaction,"p2","p3")		to specify metadata enforcement report
-"event" ("p1","p2","p3","p4","p5",significance,eventtype,"p8","p9","p10")	to specify metadata event
-"ipMac"	(["p1","p2","p3"])								to specify metadata ip to Mac
-"layer2Information"	("p1","p2","p3","p4")				to specify metadata layer 2 information
-"location"	("p1","p2")									to specify metadata location you have to use addlocations
-"requestForInvestigation" ("p1") 						to specify metadata request for Investigation
-"role"	("p1"[,"p2"])									to specify metadata role
-"unexpectedBehavior" ("p1","p2","p3","p4",significance,"p6")	to specify metadata 
-"wlanInformation" ("p1",wlantype,"p3")					to specify metadata wlaninformation you have to use addUnicastSecurity and addManagementSecurity
+"session" 										the session lifetime
+"forever" 										the session lifetime
+"stdPrefix" 										the predefined meta namespace prefix
+"stdUri" 										the predefined meta namespace prefix
+"create("elementName","qualifiedName","uri",cardinality,["attrName","attrValue"])"	to specify metadata create you can use add atributes
+"arDev()"										to specify metadata AccessRequest to Device
+"arIp()"										to specify metadata AccessRequest to Ip
+"arMac()"										to specify metadata AccessRequest to Mac
+"authAs()"										to specify metadata Authenticated As
+"authBy()"										to specify metadata Authenticated By
+"capability("name"[,"admDom"])"								to specify metadata Capability
+"clientTime("time")"									to specify metadata ClientTime
+"devIp()"										to specify metadata Device to Ip
+"devAttr("name")"									to specify metadata Device attributes
+"devChar("manufacturer","model","os","osversion","deviceType","discoveredTime","discovererId","discoveryMethod")"	to specify metadata Device characteristics
+"discoBy()"										to specify metadata discovered by
+"enforcementReport(enforcementaction,"otherTypeDefinition","enforcementReason")"	to specify metadata enforcement report
+"event("name","discoveredTime","discovererId","magnitude","confidence",significance,eventtype,"otherTypeDefinition","information","vulnerabilityUri")"	to specify metadata event
+"ipMac(["startTime","endTime","dhcpServer"])"						to specify metadata ip to Mac
+"layer2Information("vlan","vlanName","port","administrativeDomain")"			to specify metadata layer 2 information
+"location("discoveredTime", "discovererId")"						to specify metadata location you have to use addlocations
+"requestForInvestigation("qualifier")" 							to specify metadata request for Investigation
+"role("name"[,"admDom"])"								to specify metadata role
+"unexpectedBehavior("discoveredTime","discovererId","magnitude"," confidence",significance,"type")"	to specify metadata 
+"wlanInformation("ssid",wlantype,"otherTypeDefinition")"				to specify metadata wlaninformation you have to use addUnicastSecurity and addManagementSecurity
 
 Metadata types:
 
 "singleValue"					metadata cardinality singlevalue
 "multiValue"					metadata cardinality multivalue
-"block"							metadata enforcement action
-"other"							metadata enforcement action / wlan type
+"block"						metadata enforcement action
+"other"						metadata enforcement action / wlan type
 "quarantine"					metadata enforcement action
-"critical"						metadata significance
-"important"						metadata significance
+"critical"					metadata significance
+"important"					metadata significance
 "informational"					metadata significance
 "behavioralChange"				metadata event type
 "botnetInfection"				metadata event type
-"cve"							metadata event type
+"cve"						metadata event type
 "excessiveFlows"				metadata event type
 "otherEvent"					metadata event type
-"p2p"							metadata event type
+"p2p"						metadata event type
 "policyViolation"				metadata event type
 "wormInfection"					metadata event type
-"open"							metadata wlan type
-"wep"							metadata wlan type
-"tkip"							metadata wlan type
-"ccmp"							metadata wlan type
-"bip"							metadata wlan type
+"open"						metadata wlan type
+"wep"						metadata wlan type
+"tkip"						metadata wlan type
+"ccmp"						metadata wlan type
+"bip"						metadata wlan type
 
 
 
