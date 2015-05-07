@@ -17,7 +17,7 @@
 		<file>
 			<source>${project.build.directory}/irongenlog-${version}-bin.jar</source>
 			<outputDirectory></outputDirectory>
-			<destName>ironflow.jar</destName>
+			<destName>irongenlog.jar</destName>
 		</file>
 
 	</files>

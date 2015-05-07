@@ -22,7 +22,7 @@
 		<fileSet>
 			<directory>${basedir}/src/main/templates</directory>
 			<includes>
-				<include>irongenlog.properties</include>
+				<include>irongenlog.yml</include>
 				<include>irongenlog.jks</include>
 			</includes>
 			<outputDirectory>src/main/resources/</outputDirectory>
