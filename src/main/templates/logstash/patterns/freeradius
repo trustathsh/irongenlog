@@ -1,0 +1,45 @@
+# based on https://github.com/mcnewton/elk/blob/master/grok-patterns/freeradius
+
+FREERADIUS_DATE %{DAY} %{MONTH}  ?%{MONTHDAY} %{TIME} %{YEAR}
+FREERADIUS_LOGTYPE Auth|Info|Error|Proxy|Debug
+FREERADIUS_CLIENT %{NOTSPACE:radius_client}
+FREERADIUS_PORT %{INT:radius_port}
+FREERADIUS_CLI %{NOTSPACE:radius_cli}
+FREERADIUS_VIA %{DATA:radius_via}
+FREERADIUS_FROM \(from client %{FREERADIUS_CLIENT} port %{FREERADIUS_PORT}(?: cli %{FREERADIUS_CLI})?(?: via %{FREERADIUS_VIA})?\)
+FREERADIUS_USERNAME %{DATA:username}
+FREERADIUS_REASON \(%{DATA:radius_reason}\)
+FREERADIUS_MODULE \brlm_[a-z]+\b
+
+# Auth log lines
+FREERADIUS_LOGINOK \(%{INT:request_id}\) Login OK: \[%{FREERADIUS_USERNAME}\] %{FREERADIUS_FROM}
+FREERADIUS_LOGININCORRECT \(%{INT:request_id}\) Login incorrect(?: %{FREERADIUS_REASON})?: \[%{FREERADIUS_USERNAME}\] %{FREERADIUS_FROM}
+FREERADIUS_INVALIDUSER Invalid user: \[%{FREERADIUS_USERNAME}\] %{FREERADIUS_FROM}
+FREERADIUS_AUTH (?:%{FREERADIUS_LOGINOK}|%{FREERADIUS_LOGININCORRECT}|%{FREERADIUS_INVALIDUSER})
+
+# Debug log lines
+FREERADIUS_REQUEST_FINISHED \(%{INT:request_id}\) Cleaning up request packet ID %{INT:packet_id} with timestamp \+%{INT:radius_packet_timestamp}
+FREERADIUS_ROLE \(%{INT:request_id}\)   Role = \"%{DATA:radius_role}\"
+FREERADIUS_REQUEST_ID %{INT:radius_requestid}
+FREERADIUS_AR_FROM %{NOTSPACE:radius_ar_from}
+FREERADIUS_AR_PORT %{INT:radius_ar_port}
+FREERADIUS_ACCESS_ACCEPT \(%{INT:request_id}\) Sent Access-Accept Id %{INT:packet_id} from %{FREERADIUS_CLIENT}\:%{FREERADIUS_PORT} to %{FREERADIUS_AR_FROM}:%{FREERADIUS_AR_PORT} length %{INT:radius_packet_length}
+FREERADIUS_ACCESS_REJECT \(%{INT:request_id}\) Sent Access-Reject Id %{INT:packet_id} from %{FREERADIUS_CLIENT}\:%{FREERADIUS_PORT} to %{FREERADIUS_AR_FROM}:%{FREERADIUS_AR_PORT} length %{INT:radius_packet_length}
+
+# Info log lines
+# (pull out lines beginning WARNING: ?)
+FREERADIUS_INFO %{GREEDYDATA:fr_message}
+
+# Error log lines
+FREERADIUS_ERROR_ID ID: %{INT:fr_packet_id}
+FREERADIUS_ERROR_CLIENT client %{FREERADIUS_CLIENT}
+FREERADIUS_ERROR_PORT port %{FREERADIUS_PORT}
+FREERADIUS_ERROR_REQUEST request %{INT:fr_request}
+FREERADIUS_ERROR_MODULE %{FREERADIUS_MODULE:fr_module}
+
+# Proxy log lines
+FREERADIUS_PROXY %{GREEDYDATA:fr_message}
+
+# Main match on whole log line:
+FREERADIUS_LINE %{FREERADIUS_DATE:timestamp} : %{FREERADIUS_LOGTYPE:fr_logclass}: +%{GREEDYDATA:fr_message}
+
